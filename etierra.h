@@ -45,7 +45,7 @@ public:
   void cmpResults();
 
   /// list keys in \a database (resultDb, resultDbIdx, genebank)
-  std::vector<std::string> listKeys(ecolab::TCL_args args);
+  std::vector<std::string> listKeys(const std::string& db);
 
   /// used for classifying organisms into phenotypes
   Neutrals neutrals;

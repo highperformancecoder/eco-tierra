@@ -248,9 +248,8 @@ template <class K, class V> vector<K> listKeys(const cachedDBM<K,V>& db)
   return r;
 }
 
-vector<string> Etierra::listKeys(TCL_args args)
+vector<string> Etierra::listKeys(const string& dbName)
 {
-  string dbName((char*)args);
   if (dbName=="resultDb") return ::listKeys(resultDb);
   if (dbName=="resultDbIdx") return ::listKeys(resultDbIdx);
   if (dbName=="genebank") return ::listKeys(genebank);
