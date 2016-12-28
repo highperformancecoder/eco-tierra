@@ -251,7 +251,7 @@ void Cell::updateResult(const string& offspringName)
     }
   else 
     {
-      if (offspringName!="unknown" && cpu.divs>=2 && 
+      if (offspringName!="unknown" && cpu.divs>=1 && 
           cpu.sameState(cpuAtLastDiv) && lastResult==offspringName)
         {
           result.clas = Result::repeat;

@@ -33,7 +33,7 @@ injectOrg 0080aaa
 injectOrg 0045aaa
 runJoust
 
-# check 0080aaa's resuls
+# check 0080aaa's results
 set r [soup.cells.@elem 0].result
 assert \[$r.outMatches\]==0
 assert \[$r.inMatches\]>0
@@ -45,7 +45,7 @@ assert \[$r.copyTime\]==813
 set inMatches0080aaa [$r.inMatches]
 
 # now 0045aaa's
-set r [soup.cells.@elem 1].result
+set r [soup.cells.@elem 2].result
 # this assertion is invalid, as the parasite may match some daughter cells
 #assert \[$r.outMatches\]==$inMatches0080aaa
 assert \[$r.outMatches\]==6
