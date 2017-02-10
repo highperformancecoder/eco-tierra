@@ -81,7 +81,8 @@ Word Soup::adr(Word address, Word& size, int dir)
 {
   Word i, t, g;
   /* load up template into t, */
-  auto& gen=get_cell_idx(address).organism->genome;
+  Cell& cell=get_cell_idx(address);
+  auto& gen=cell.organism->genome;
   auto idx=address&~mask;
   for (i=idx+1, t=1; i<gen.size() && (g=gen[i])<=CPU::nop1; ++i)
     {
@@ -93,8 +94,7 @@ Word Soup::adr(Word address, Word& size, int dir)
 
   // just implement exact matching
   // now search outwards for matching templates
-  int this_cell=address>>Cell_bitsize;
-  this_cell %= cells.size(); //wrap around
+  int this_cell=cell.cellID;
   Word adr=(this_cell<<Cell_bitsize)|i&~mask; // place address in this_cell
   if (size==0 || size>=8*sizeof(Word)) return -1;
 
