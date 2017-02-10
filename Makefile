@@ -70,3 +70,6 @@ clean:
 
 checkMissing:
 	sh test/checkMissing.sh
+
+sure: all
+	sh runtests.sh
