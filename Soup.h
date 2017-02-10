@@ -19,7 +19,9 @@ struct Cell
   /// not yet called
   bool daughterAllocated; 
 
-  typedef std::unordered_multimap<Word,Word> TemplateMap;
+  //typedef std::unordered_multimap<Word,Word> TemplateMap;
+  typedef std::vector<std::vector<Word>> TemplateMap;
+  
   TemplateMap templates;
 
   Result result;

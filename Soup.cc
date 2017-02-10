@@ -23,8 +23,11 @@ void Cell::updateTemplates()
             t<<=1;
             t|=organism->genome[i];
           }
-        templates.insert(make_pair(t, (cellID<<Cell_bitsize) + i));
+        //        templates.insert(make_pair(t, (cellID<<Cell_bitsize) + i));
+        if (t>=templates.size()) templates.resize(t+1);
+        templates[t].push_back((cellID<<Cell_bitsize) + i);
       }
+  
 }
 
 /**
@@ -33,17 +36,16 @@ void Cell::updateTemplates()
 bool find_closest_match(Word PC, const Cell::TemplateMap& templates, Word t,
                         Word& match, int dir, Word soupSz)
 {
-  auto it=templates.find(t);
-  if (it==templates.end()) return false;
+  if (t>=templates.size()) return false;
   
   Word min_dist=std::numeric_limits<Word>::max();
-  for (auto i=it; i!=templates.end() && i->first==it->first; ++i)
+  for (auto i: templates[t])
     {
-      Word d=i->second-PC;
+      Word d=i-PC;
       if (d*dir>=0 && abs(d)<min_dist || 
           dir<=0 && abs(d-soupSz)<min_dist || dir>=0 && abs(d+soupSz)<min_dist) //wrap around
         {
-          match=i->second;
+          match=i;
           if (d*dir>=0)
             min_dist=abs(d);
           if (dir<=0)
@@ -60,16 +62,15 @@ bool find_closest_match(Word PC, const Cell::TemplateMap& templates, Word t,
 */
 bool find_closest_match_cell(Word PC, const Cell::TemplateMap& templates, Word t, Word& match, int dir, Word soupSz)
 {
-  auto it=templates.find(t);
-  if (it==templates.end()) return false;
-  
+  if (t>=templates.size()) return false;
+
   Word min_dist=std::numeric_limits<Word>::max();
-  for (auto i=it; i!=templates.end() && i->first==it->first; ++i)
+  for (auto i: templates[t])
     {
-      Word d=i->second-PC;
+      Word d=i-PC;
       if (d*dir>=0 && abs(d)<min_dist) 
         {
-          match=i->second;
+          match=i;
           min_dist=abs(d);
         }
     }
@@ -419,9 +420,9 @@ bool Soup::interacts()
   // set of all templates in Soup
   std::set<Word> templates;
   for (size_t i=0; i<cells.size(); ++i)
-    for (Cell::TemplateMap::const_iterator t=cells[i].templates.begin();
-         t!=cells[i].templates.end(); ++t)
-      templates.insert(t->first);
+    for (auto& vt: cells[i].templates)
+      for (auto t: vt) 
+        templates.insert(t);
    
 
   for (size_t i=0; i<cells.size(); ++i)
@@ -430,17 +431,18 @@ bool Soup::interacts()
       if (cell.templates.empty()) 
         cell.updateTemplates();
       // check for presence of the complement within cell in correct direction
-      for (Cell::TemplateMap::const_iterator t=cell.templates.begin();
-           t!=cell.templates.end(); ++t)
+      for (size_t i=0; i<cell.templates.size(); ++i)
+        for (auto t: cell.templates[i])
         {
           // extract instruction prior to template
-          Word instr=get(t->second-log2i(t->first)-1);
+          Word instr=get(t-log2i(i)-1);
           if (!cell.cpu.adrMatchInstr(instr)) continue;
-          Word ctmp=complement(t->first);
-          auto range=cell.templates.equal_range(ctmp);
-          for (auto i=range.first; i!=range.second; ++i)
-            if ((i->second-t->second)*cell.cpu.adrMatchDir(instr) >= 0)
-              goto next_template; // match occurs in right direction within cell
+          Word ctmp=complement(i);
+
+          if (ctmp<cell.templates.size())
+            for (auto i: cell.templates[ctmp])
+              if ((i-t)*cell.cpu.adrMatchDir(instr) >= 0)
+                goto next_template; // match occurs in right direction within cell
 
           if (templates.count(ctmp))
             return true; // match in another cell
