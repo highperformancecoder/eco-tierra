@@ -79,15 +79,16 @@ bool find_closest_match_cell(Word PC, const Cell::TemplateMap& templates, Word t
 
 Word Soup::adr(Word address, Word& size, int dir)
 {
-  Word i,t, g;
+  Word i, t, g;
   /* load up template into t, */
-  Word cellLimit=(address&mask) + get_cell_idx(address).organism->genome.size();
-  for (i=address+1, t=1; (g=get(i))<=CPU::nop1 && i<cellLimit; ++i)
+  auto& gen=get_cell_idx(address).organism->genome;
+  auto idx=address&~mask;
+  for (i=idx+1, t=1; i<gen.size() && (g=gen[i])<=CPU::nop1; ++i)
     {
       t <<=1; 
       t |= !g;
     }
-  size=i-address-1;
+  size=i-idx-1;
   
 
   // just implement exact matching
@@ -389,6 +390,7 @@ void Soup::run(unsigned timeSlices)
           if (tstep % flawRate == 0) // perform instruction flaws
             instr = CPU::Instr_set(uni.rand()* CPU::instr_sz);
           cell.cpu.execute(instr);
+          if (cell.cpu.PC>=memSz()) cell.cpu.PC-=memSz(); //wrap around
         }
     }
 }

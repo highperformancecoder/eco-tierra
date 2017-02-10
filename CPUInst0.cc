@@ -40,7 +40,7 @@ int CPUInst0::moviiImpl(Word AX, Word BX)
 
 void CPUInst0::adr(Word& reg, Word& template_sz, int dir)
 {
-  PC%=soup.memSz();
+  //  PC%=soup.memSz();
   Word a=soup.adr(PC,template_sz,dir);
   Word prevPC=PC;
   if (template_sz<8*sizeof(Word))

@@ -43,7 +43,7 @@ struct Cell
 
 };
 
-static const Word mask=~0<<Cell_bitsize;
+static const uWord mask=~0U<<Cell_bitsize;
 
 class Soup
 {
@@ -51,9 +51,9 @@ public:
   typedef CPU::instr_set Instr_set;
   CLASSDESC_ACCESS(Soup);
 private:
-  Cell& get_cell_idx(Word i) {
-    Word cell=(i&mask)>>Cell_bitsize;
-    if (cell>=cells.size() || cell<0) cell%=cells.size();
+  Cell& get_cell_idx(uWord i) {
+    uWord cell=(i&mask)>>Cell_bitsize;
+    if (cell>=cells.size()) cell%=cells.size();
     return cells[cell];
   }
   size_t currentCell, maxCells;
@@ -95,9 +95,9 @@ public:
 
   /// returns instruction at location \a i
   int get(Word i) {
-    Word idx=i&~mask;
+    uWord idx=i&~mask;
     Cell& cell = get_cell_idx(i);
-    return (idx>=0 && idx<cell.organism->genome.size())? cell.organism->genome[idx]: 0;
+    return (idx<cell.organism->genome.size())? cell.organism->genome[idx]: 0;
   }
 
   /// sets location \a i to \a val if cell is open for writing
