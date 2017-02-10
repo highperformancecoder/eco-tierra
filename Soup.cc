@@ -30,14 +30,14 @@ void Cell::updateTemplates()
 /**
    Find the closest memory location in range to \a PC, and return the value in match if found. Returns true if a valid template is found, false otherwise
 */
-typedef pair<Cell::TemplateMap::const_iterator, 
-             Cell::TemplateMap::const_iterator> Range; 
-bool find_closest_match(Word PC, const Range& range, Word& match, int dir, Word soupSz)
+bool find_closest_match(Word PC, const Cell::TemplateMap& templates, Word t,
+                        Word& match, int dir, Word soupSz)
 {
-  if (range.first==range.second) return false;
+  auto it=templates.find(t);
+  if (it==templates.end()) return false;
   
   Word min_dist=std::numeric_limits<Word>::max();
-  for (Range::first_type i=range.first; i!=range.second; ++i)
+  for (auto i=it; i!=templates.end() && i->first==it->first; ++i)
     {
       Word d=i->second-PC;
       if (d*dir>=0 && abs(d)<min_dist || 
@@ -58,14 +58,13 @@ bool find_closest_match(Word PC, const Range& range, Word& match, int dir, Word 
 /**
    Find the closest memory location in range to \a PC, and return the value in match if found. Returns true if a valid template is found, false otherwise
 */
-typedef pair<Cell::TemplateMap::const_iterator, 
-             Cell::TemplateMap::const_iterator> Range; 
-bool find_closest_match_cell(Word PC, const Range& range, Word& match, int dir, Word soupSz)
+bool find_closest_match_cell(Word PC, const Cell::TemplateMap& templates, Word t, Word& match, int dir, Word soupSz)
 {
-  if (range.first==range.second) return false;
+  auto it=templates.find(t);
+  if (it==templates.end()) return false;
   
   Word min_dist=std::numeric_limits<Word>::max();
-  for (Range::first_type i=range.first; i!=range.second; ++i)
+  for (auto i=it; i!=templates.end() && i->first==it->first; ++i)
     {
       Word d=i->second-PC;
       if (d*dir>=0 && abs(d)<min_dist) 
@@ -98,8 +97,8 @@ Word Soup::adr(Word address, Word& size, int dir)
   if (size==0 || size>=8*sizeof(Word)) return -1;
 
   // see if matching template is in current cell
-  if (find_closest_match_cell(address,cells[this_cell].templates.equal_range(t),
-                         adr,dir, memSz())) 
+  if (find_closest_match_cell(address,cells[this_cell].templates,t,
+                              adr,dir, memSz())) 
     return adr;
 
   if (dir)
@@ -108,7 +107,7 @@ Word Soup::adr(Word address, Word& size, int dir)
         //wrap around
         if (cell>=int(cells.size())) cell=0;
         if (cell==-1) cell=cells.size()-1;
-        if (find_closest_match(address,cells[cell].templates.equal_range(t),
+        if (find_closest_match(address,cells[cell].templates,t,
                                adr,dir, memSz()))
           {
             updateResultMatches(this_cell, cell);
@@ -120,12 +119,11 @@ Word Soup::adr(Word address, Word& size, int dir)
     for (int fcell=(this_cell+1)%cells.size(), bcell=(this_cell-1)%cells.size(); 
          fcell!=this_cell && bcell!=this_cell; 
          fcell++, bcell--,fcell%=cells.size(),bcell%=cells.size())
-      if (find_closest_match(address,cells[fcell].templates.equal_range(t),
-                              adr,1, memSz()))
+      if (find_closest_match(address,cells[fcell].templates,t,adr,1, memSz()))
         {
           // check reverse direction in case closer match exists
           Word address_b=(this_cell<<Cell_bitsize)|i&~mask;
-          if (find_closest_match(address,cells[bcell].templates.equal_range(t),
+          if (find_closest_match(address,cells[bcell].templates,t,
                                  address_b,-1, memSz()))
             {
               Word db=bcell<this_cell? address-address_b: address-address_b+memSz();
@@ -139,13 +137,12 @@ Word Soup::adr(Word address, Word& size, int dir)
           updateResultMatches(this_cell, fcell);
           return adr;
         }
-      else
-        if (find_closest_match(address,cells[bcell].templates.equal_range(t),
-                               adr,-1, memSz()))
-          {
-            updateResultMatches(this_cell, bcell);
-            return adr;
-          }
+        else
+          if (find_closest_match(address,cells[bcell].templates,t,adr,-1, memSz()))
+            {
+              updateResultMatches(this_cell, bcell);
+              return adr;
+            }
 
   return adr;
 }
@@ -193,7 +190,7 @@ Word Soup::mal(Word size, unsigned owner)
         {
           cells[cellID].organism->genome.resize(size);
         }
-      cells[cellID].updateTemplates();
+      //      cells[cellID].updateTemplates();
       cells[cellID].organism->name.clear();
       cells[cellID].owner=owner;
     }
@@ -312,7 +309,7 @@ bool Soup::divide(Word c)
         }
       assert(cell.organism);
       parent.updateResult(cell.organism->name);
-      cell.updateTemplates();
+      //      cell.updateTemplates();
     }
   else
     {

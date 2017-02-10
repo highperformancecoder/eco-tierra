@@ -5,6 +5,7 @@
 #include "Wordsize.h"
 #include "genebank.h"
 #include <random.h>
+#include <unordered_map>
 
 using classdesc::ref;
 
@@ -18,7 +19,7 @@ struct Cell
   /// not yet called
   bool daughterAllocated; 
 
-  typedef std::multimap<Word,Word> TemplateMap;
+  //  typedef std::unordered_multimap<Word,Word> TemplateMap;
   TemplateMap templates;
 
   Result result;

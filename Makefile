@@ -19,6 +19,10 @@ FLAGS+=-std=c++11 $(OPT) -DNO_HASH
 
 UTILS=BDBmerge
 
+ifdef CPUPROFILE
+LIBS+=-lprofiler
+endif
+
 ifdef MEMDEBUG
 FLAGS+=-DRealloc=Realloc
 endif

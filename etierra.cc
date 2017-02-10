@@ -40,6 +40,11 @@ void Etierra::importGenome(TCL_args filename)
         for (int i=0; i<3 && gen; getline(gen,buf), ++i); // skip 3 more lines
         break;
       }
+    else if (buf == "track 0:") // targ produced files miss the CODE line
+      {
+        getline(gen,buf);
+        break;
+      }
 
   if (!gen) throw error("failed to find oganism code");
 
