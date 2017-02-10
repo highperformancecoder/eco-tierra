@@ -379,7 +379,6 @@ void Soup::run(unsigned timeSlices)
                             slicePow);
       for (unsigned i=0; i<slice; ++i)
         {
-          Cell& cell=cells[currentCell];
           ++tstep;
           // perform cosmic ray mutations
           if (tstep % mutRate == 0)
