@@ -77,6 +77,13 @@ bool find_closest_match_cell(Word PC, const Cell::TemplateMap& templates, Word t
   return min_dist!=std::numeric_limits<Word>::max();
 }
 
+// increment decrement with wraparound
+void incDecCells(int& fcell, int& bcell, int max)
+{
+  if (++fcell>=max) fcell-=max;
+  if (--bcell<0) bcell+=max;
+}
+
 Word Soup::adr(Word address, Word& size, int dir)
 {
   Word i, t, g;
@@ -118,10 +125,11 @@ Word Soup::adr(Word address, Word& size, int dir)
         if (cell==this_cell) break;
       }
   else //check alternate directions if dir==0
-    for (int fcell=(this_cell+1)%cells.size(), bcell=(this_cell-1)%cells.size(); 
-         fcell!=this_cell && bcell!=this_cell; 
-         fcell++, bcell--,fcell%=cells.size(),bcell%=cells.size())
-      if (find_closest_match(address,cells[fcell].templates,t,adr,1, memSz()))
+    {
+      int fcell=this_cell, bcell=this_cell;
+      incDecCells(fcell,bcell,cells.size());
+      for (; fcell!=this_cell && bcell!=this_cell; incDecCells(fcell,bcell,cells.size()))
+        if (find_closest_match(address,cells[fcell].templates,t,adr,1, memSz()))
         {
           // check reverse direction in case closer match exists
           Word address_b=(this_cell<<Cell_bitsize)|i&~mask;
@@ -145,7 +153,7 @@ Word Soup::adr(Word address, Word& size, int dir)
               updateResultMatches(this_cell, bcell);
               return adr;
             }
-
+    }
   return adr;
 }
 
