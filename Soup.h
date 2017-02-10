@@ -119,7 +119,7 @@ public:
   {
 //    std::cout << "movii ["<<dest<<"]="<<
 //      classdesc::enum_keys<CPUInst0::instr_set>()(get(src))<<" succ="<<set(dest, get(src))<<std::endl;
-    if (tstep % copyFlawRate == 0)
+    if (copyFlawRate && tstep % copyFlawRate == 0)
       {
         set(dest, uni.rand()*CPU::instr_sz);
         return false;
@@ -155,7 +155,7 @@ public:
 
   Soup(Genebank& genebank): 
     slicePow(0), currentCell(0), rambank(&genebank),tstep(0), 
-    flawRate(~0UL), mutRate(~0UL), copyFlawRate(~0UL), maxCellSz(1<<Cell_bitsize), 
+    flawRate(0), mutRate(0), copyFlawRate(0), maxCellSz(1<<Cell_bitsize), 
     tournamentMode(false), movPropThrDiv(0.7) {}
 
 };

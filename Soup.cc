@@ -381,12 +381,12 @@ void Soup::run(unsigned timeSlices)
         {
           ++tstep;
           // perform cosmic ray mutations
-          if (tstep % mutRate == 0)
+          if (mutRate && tstep % mutRate == 0)
             mutate();
           // TODO: maybe cache instruction fetches
           // use the indexed version of cells in case cells changes
           CPU::Instr_set instr(CPU::Instr_set(get(cell.cpu.PC)));
-          if (tstep % flawRate == 0) // perform instruction flaws
+          if (flawRate && tstep % flawRate == 0) // perform instruction flaws
             instr = CPU::Instr_set(uni.rand()* CPU::instr_sz);
           cell.cpu.execute(instr);
           if (cell.cpu.PC>=memSz()) cell.cpu.PC-=memSz(); //wrap around
