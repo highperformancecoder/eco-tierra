@@ -563,7 +563,7 @@ void etierra_t::write_orgnms(TCL_args args)
   fclose(f);
 }
 
-inline const char* cast(oname& x)
+inline string cast(oname& x)
 {return (const char*)x;}
 
 void etierra_t::create_inv_neutdb()
@@ -581,7 +581,7 @@ void etierra_t::create_inv_neutdb()
 /* return number of site different between two organisms */
 int etierra_t::hop_count(TCL_args args)
 {
-  oname namei(args), namej(args);
+  oname namei((char*)args), namej((char*)args);
   Datum icode=torgs[namei], jcode=torgs[namej];
   Datum maxcode, mincode;
   if (icode.size()>jcode.size())
