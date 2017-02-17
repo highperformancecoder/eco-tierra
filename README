@@ -1,0 +1,100 @@
+Code for Eco-Tierra project, as reported in the following papers:
+
+
+
+Russell K. Standish, (2001). "Open-ended artificial evolution" in
+Proceedings ALife Workshop, Adelaide, Dec. 2001.
+
+Standish, R.K. (1999) ``Some Techniques for the Measurement of
+Complexity in Tierra'', Advances in Artificial Life, Lecture Notes in
+Computer Science, 1674, 104 (Springer: Berlin)
+
+Standish, R.K. (1997) ``Embryology in Tierra: A study of a genotype to
+phenotype map'', Complexity International , 4.
+
+Standish, R.K. (1997) ``On an Efficient Implemenation of Tierra'',
+Complexity International , 4
+
+BUILDING:
+	This release requires Ecolab 4.D22 to be installed first see
+http://ecolab.sourceforge.net. 
+
+Do a make (requires GNU Make). 
+
+Various scripts are used (bash, TCL and perl) for various tasks. All
+TCL files use the etierra interpreter built with the make command.
+
+PREPARATION:
+
+* Run Tierra, which generates genebanker file *.gen in gb0 (or wherever)
+* Use the arg1 program to unpack .gen files into source files located in
+the src directory - see setup.sh
+* Create databases using setup.tcl
+* Create extinction database by running 
+   perl anal-tierra-bd.pl gb0/break.? gb0/break.?? gb0/break.???
+ - note the use of ? rather than * to feed the files in correct order.
+
+
+CREATING LIST OF PHENOTYPES
+  * details.tcl: use details-submit.tcl to spread over multiple CPUs
+  on a PBS queueing system
+  * use merge or BDBmerge to merge results databases to results (if
+  computation split)
+  * rem-neutrals.tcl produces unique-orgs and neutdb
+  * neutclass.tcl dumps out a genotype to phenotype map for use with
+  Bedau stats
+
+ANALYSIS SCRIPTS
+  * ss-complexity.tcl single site complexity measure
+  * complexity.tcl foodweb complexity timeseries
+  * neut-prop.tcl proportion of neutral mutations, used in the missing
+  neutrality work
+  * plot-foodwebs.tcl graphical display of foodwebs
+  * bedau.pl produces Bedau-Packard timeseries stats using break
+  files. Use as 
+     perl bedau.pl gb0/break.? gb0/break.?? ...
+
+
+DATABASES:
+
+Databases with be Berkley DB is you have installed this, otherwise DBM
+(or gdbm) format. BDB has better scalability than gdbm, which in turn
+is better than DBM.
+
+tierra-orgs - database of organisms genomes created by a Tierra run
+
+torg_headers - the headers of the Tierra genome source files
+
+src/ directory. Created from Tierra genebanker utility using the
+Tierra "arg" utility. Converted to tierra-orgs and torg_headers by the setup.tcl script.
+
+createdb - plain text file listing genotypes and the creation time of
+the organism.
+
+unique-orgs - plain text file consisting of the phenotypic
+archetypes. It is labeled by the first genotype of that phenotype to
+appear in the genebank record. Creation time and number of neutral
+equivalents are recorded as the second and third field. .pag and .dir
+files are symbolic links to tierra-orgs DBM files. Created by "rem-neutrals".
+
+results - results of the minitierra tournaments stored pairwise for
+each organism in tierra-orgs. Only interacting pairs are
+stored. Created by the "details" program.
+
+neutdb - database of neutrally equivalent genotypes indexed by
+phenotype. Created by "rem-neutrals".
+
+PROGRAMS:
+
+dumpdb, loaddb: create flat file representation from dbm file, and the
+reverse operation. Useful for porting DBM files between different
+computers. Obsoleted by use of Berkley DB.
+
+merge, BDBmerge: merge multiple databases to a single database. merfge
+operates on DBM format, BDBmerg on Berkley DB format.
+
+convtoBDB: convert DBM files to BDB format.
+
+etierra: Main Ecolab interpreter used to implement most of the
+eco-tierra functionality. See TCL scripts for usage.
+

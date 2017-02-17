@@ -62,15 +62,7 @@ link_integration_directory = true;
  * constructing them, to ensure that development builds do not attempt
  * to write their results onto the read-only versions in the baseline.
  */
-/*create_symlinks_before_build = true;*/
-development_directory_style =
-{
-        source_file_symlink = true;
-};
-integration_directory_style =
-{
-        source_file_symlink = true;
-};
+create_symlinks_before_build = true;
 
 /*
  * -------------------------------------------------------------------------
@@ -330,11 +322,15 @@ symlink_exceptions =
 [
 	"lib/name1/version.o",
 	"*,*",
+	"*.d",
+	"*.cd",
+        "*.o",
         "eclassdesc.h"
 ];
 
 integrate_begin_exceptions =
 [
+        "*.d",
 	"lib/name1/version.o"  
 ];
 

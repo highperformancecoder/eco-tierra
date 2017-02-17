@@ -1,0 +1,9 @@
+#!/bin/bash
+#PBS -lvmem=1024mb
+#PBS -lwalltime=3:0:0
+#PBS -lncpus=1
+
+if [ ! -z "$PBS_O_WORKDIR" ]; then cd $PBS_O_WORKDIR; fi
+PATH=.:$PATH
+
+classify createdb results >classify.ppm

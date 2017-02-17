@@ -1,4 +1,27 @@
-#!etierra
+##!etierra
+#PBS -A rks -q single -l walltime=0:30:0
+#\
+    cd $PBS_O_WORKDIR
+#\
+    cp createdb etierra extinctiondb rem-neutrals.tcl torg_headers /scratch/$PBS_JOBID
+#\
+    if [ -f rem-neutrals.ckpt ]; then \
+    scp barossafs:$PBS_O_WORKDIR/rem-neutrals.ckpt /scratch/$PBS_JOBID; fi
+#\
+    cd /scratch/$PBS_JOBID
+#\
+scp barossafs:$PBS_O_WORKDIR/results .
+#\
+    ./etierra rem-neutrals.tcl
+# post processing
+#\
+scp neutdb unique-orgs barossafs:$PBS_O_WORKDIR
+#\
+    if [ -f rem-neutrals.ckpt ]; then \
+    scp rem-neutrals.ckpt barossafs:$PBS_O_WORKDIR; fi
+#\
+    exit
+# TCL input starts here
 set clock0 [clock seconds]
 # name of checkpoint file
 set ckpt "rem-neutrals.ckpt"
@@ -17,7 +40,7 @@ if [file exists $ckpt] {
 } {
 
     #set MaxPropPop_threshold 0.005
-    set MaxPropPop_threshold 0.0001
+    set MaxPropPop_threshold 0.05
     set createf [open createdb r]
     torg_headers.Init torg_headers r
     while {![eof $createf]} {

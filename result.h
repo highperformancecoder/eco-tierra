@@ -1,21 +1,19 @@
 #ifndef RESULT_H
 #define RESULT_H
-
-#include <string>
-#include <classdesc.h>
+#include "oname.h"
 
 /* structure of the resultdb data field */
+enum clas_t {once, repeat, nonrepeat, infertile,noninteract};
 
 static const char *classn[]={"once","repeat","nonrepeat","infertile","noninteract"};
 
-class Result 
+class resultd_t 
 {
 public:
-  enum Class {once, repeat, nonrepeat, infertile,noninteract} clas;
-  std::string result;
-  unsigned firstDiv, copyTime, outMatches, inMatches;
-  Result(): clas(noninteract) {firstDiv=copyTime=outMatches=inMatches=0;}
-  std::string classDescription() {return classn[clas];}
+  enum clas_t  clas;
+  oname result;
+  float sigma,tau,mu,nu;
+  resultd_t() {sigma=tau=mu=nu=0; clas=noninteract; result="";}
 };
 
 #include "result.cd"
