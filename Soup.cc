@@ -429,9 +429,9 @@ bool Soup::interacts()
   // set of all templates in Soup
   std::set<Word> templates;
   for (size_t i=0; i<cells.size(); ++i)
-    for (auto& vt: cells[i].templates)
-      for (auto t: vt) 
-        templates.insert(t);
+    for (size_t j=0; j<cells[i].templates.size(); ++j)
+      if (!cells[i].templates[j].empty()) 
+        templates.insert(j);
    
 
   for (size_t i=0; i<cells.size(); ++i)
