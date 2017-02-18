@@ -448,7 +448,10 @@ void etierra_t::insert(oname src, oname dest)
 	neutdb[dest][j]=neutdb[src][i];
     }
   printf("neutdb[%s].size()=%d\n",(const char*)dest,(int)neutdb[dest].size());
-  neutdb.del(src);
+  try {
+    neutdb.del(src);
+  }
+  catch (...) {} // ignore deletion, probably doesn't exist
 }
 
 /* remove organism i from orgnms and create, and update extinction record j */
