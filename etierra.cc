@@ -234,6 +234,7 @@ void Etierra::cmpResults()
 
       if (oldResult!=newResult)
         {
+          cout <<"keyPresent="<<keyPresent<<endl;
           cout <<"keys:"<<string(k.data) << " |"<<newKey<<"|"<<endl;
           cout << "class:"<<classn[oldResult.clas] << " " <<classn[newResult.clas]<<endl;
           cout << "result:"<<string(oldResult.result) << " " <<newResult.result<<endl;

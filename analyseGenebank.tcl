@@ -33,8 +33,12 @@ for {set o $proc} {$o<[llength $orgnms]} {incr o $np} {
 
     foreach orgB $orgnms {
         soup.clear
-        injectOrg $orgA
+# order and spacing in soup reflects etierra.3
+# TODO try different injections
         injectOrg $orgB
+        addEmptyCell
+        injectOrg $orgA
+        addEmptyCell
 #        puts "doing $orgA $orgB"
 # TODO check for interaction
 # TODO determine no steps based on cell size

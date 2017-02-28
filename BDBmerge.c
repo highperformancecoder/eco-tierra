@@ -23,7 +23,7 @@ main(int argc, char *argv[])
   db_create(&odb,0,0);
   odb->open(odb,NULL,argv[argc-1],NULL,DB_HASH,DB_CREATE,0644);
 
-  for (i=1; i<argc-2; i++)
+  for (i=1; i<argc-1; i++)
     {
       db_create(&idb,0,0); 
       idb->open(idb,NULL,argv[i],NULL,DB_HASH,DB_RDONLY,0);
