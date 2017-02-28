@@ -6,7 +6,7 @@ rm -f results* resultIdx* analyse*.log
 
 i=0
 while [ $i -lt $np ]; do
-  etierra analyseGenebank.tcl $np $i >analyse$i.log&
+  etierra analyseGenebank.tcl $np $i &>analyse$i.log&
   rr="$rr results$i"
   ri="$rr resultIdx$i"
   i=$[$i+1]

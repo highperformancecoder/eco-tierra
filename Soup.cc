@@ -192,9 +192,22 @@ Word Soup::mal(Word size, unsigned owner)
       else
         {
           if (cells.size()==cells.capacity())
-            throw error("Please set maxCells parameter > %d",cells.size());
-          cellID = tournamentAllocations[owner] = cells.size();
-          cells.push_back(Cell(cells.size()));
+            {
+              // try to find an empty cell
+              for (auto& cell:cells)
+                if (cell.organism->genome.empty())
+                  {
+                    cellID = tournamentAllocations[owner] = cell.cellID;
+                    goto emptyCellFound;
+                  }
+              throw error("Please set maxCells parameter > %d",cells.size());
+            emptyCellFound:;
+            }
+          else
+            {
+              cellID = tournamentAllocations[owner] = cells.size();
+              cells.push_back(Cell(cells.size()));
+            }
         }
       if (size!=cells[cellID].organism->genome.size())
         {
