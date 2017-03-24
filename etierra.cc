@@ -123,7 +123,7 @@ void Etierra::insertResults()
         multiset<string> genNames; // genome names of all other cells in soup 
         for (vector<Cell>::iterator c=soup.cells.begin(); 
              c!=soup.cells.end(); ++c)
-          if (c!=cell && c->cpu.active && c->organism && !c->organism->name.empty())
+          if (c!=cell && c->organism && !c->organism->name.empty() && c->inserted)
             genNames.insert(c->organism->name);
 
         // fold into a string
@@ -140,15 +140,18 @@ void Etierra::insertResults()
         if (genNames.size()==0 && cell->result.clas==Result::noninteract)
             cell->result.clas=Result::infertile;
 
-          cout << "recorded result="<<classn[cell->result.clas]
-               <<" result="<<cell->result.result<<
-            " name="<< cell->organism->name<<" suffix="<<suffix<<
-            " firstdiv="<<cell->result.firstDiv<<" outMatches="<<cell->result.outMatches<<endl;
+        cout << "recorded result="<<classn[cell->result.clas]
+             <<" result="<<cell->result.result<<
+          " name="<< cell->organism->name<<" suffix="<<suffix<<
+          " firstdiv="<<cell->result.firstDiv<<" outMatches="<<cell->result.outMatches<<endl;
 
         // TODO: filter out 3-wise and n-wise reactions that are just
         // subsets of pair-wise reactions
-        resultDb[cell->organism->name+suffix]=cell->result;
-        resultDbIdx[cell->organism->name].insert(suffix);
+        if (cell->result.clas!=Result::noninteract)
+          {
+            resultDb[cell->organism->name+suffix]=cell->result;
+            resultDbIdx[cell->organism->name].insert(suffix);
+          }
       }
 }
 

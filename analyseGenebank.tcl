@@ -26,6 +26,7 @@ for {set o $proc} {$o<[llength $orgnms]} {incr o $np} {
     soup.clear
     addEmptyCell
     addEmptyCell
+    addEmptyCell
     injectOrg $orgA
     puts "doing $orgA"
     runJoust
@@ -35,9 +36,9 @@ for {set o $proc} {$o<[llength $orgnms]} {incr o $np} {
         soup.clear
 # order and spacing in soup reflects etierra.3
 # TODO try different injections
-        injectOrg $orgB
-        addEmptyCell
         injectOrg $orgA
+        addEmptyCell
+        injectOrg $orgB
         addEmptyCell
 #        puts "doing $orgA $orgB"
 # TODO check for interaction

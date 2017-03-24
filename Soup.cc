@@ -162,13 +162,13 @@ void  Soup::insert_genome(const classdesc::ref<Rambank_entry>& organism)
   rambank->insert(organism);
   cells.push_back(Cell(cells.size(), organism));
   cells.back().cpu.active = true;
+  cells.back().inserted=true;
   cells.back().organism->incrPopulation();
   // in tournamentMode, active cells are not killed.
   if (tournamentMode)
     {
       // allocate daughter cell next to parent for comparison with 3.x
       tournamentAllocations[cells.size()-1]=cells.size();
-      cells.push_back(Cell(cells.size()));
     }
   else
     reaper_q.push_front(cells.size()-1);

@@ -3,14 +3,13 @@ use_namespace etierra
 genebank.Init genebank r
 soup.tournamentMode 1
 soup.setMaxCells 4
-injectOrg 0079aay
+injectOrg 0130aap
 addEmptyCell
-injectOrg 0238aav
+injectOrg 0152abe
 addEmptyCell
-#
-#addEmptyCell
 puts "interacts=[soup.interacts]"
-#run 10000
+#soup.cells.@elem 2
+#etierra.soup.cells(2).cpu.active 0
 runJoust
 puts "tstep=[soup.tstep]"
 insertResults

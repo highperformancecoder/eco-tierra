@@ -18,7 +18,8 @@ struct Cell
   /// if a daughter cell has been allocated by calling mal, but divide
   /// not yet called
   bool daughterAllocated; 
-
+  bool inserted=false; ///< This cell was deliberately innoculated
+  
   //typedef std::unordered_multimap<Word,Word> TemplateMap;
   typedef std::vector<std::vector<Word>> TemplateMap;
   
