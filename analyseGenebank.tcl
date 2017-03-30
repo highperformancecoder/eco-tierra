@@ -26,8 +26,8 @@ for {set o $proc} {$o<[llength $orgnms]} {incr o $np} {
     soup.clear
     addEmptyCell
     addEmptyCell
-    addEmptyCell
     injectOrg $orgA
+    addEmptyCell
     puts "doing $orgA"
     runJoust
     insertResults

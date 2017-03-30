@@ -134,7 +134,7 @@ void Etierra::insertResults()
         // if more than one active cell is in play, and no in/out
         // matches have occurred, rewrite the result as a noninteract
         if (genNames.size()>0 && /*cell->result.inMatches==0 && */
-            cell->result.outMatches==0)
+            cell->result.inMatches+cell->result.outMatches==0)
           cell->result.clas=Result::noninteract;
 
         if (genNames.size()==0 && cell->result.clas==Result::noninteract)
@@ -143,7 +143,7 @@ void Etierra::insertResults()
         cout << "recorded result="<<classn[cell->result.clas]
              <<" result="<<cell->result.result<<
           " name="<< cell->organism->name<<" suffix="<<suffix<<
-          " firstdiv="<<cell->result.firstDiv<<" outMatches="<<cell->result.outMatches<<endl;
+          " firstdiv="<<cell->result.firstDiv<<" inMatches="<<cell->result.inMatches<<" outMatches="<<cell->result.outMatches<<endl;
 
         // TODO: filter out 3-wise and n-wise reactions that are just
         // subsets of pair-wise reactions
