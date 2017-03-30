@@ -197,9 +197,13 @@ void cpu::adr(int& address, int& sz, int dir)
           if ((ad=search_org_other(this,t,sz,dir,PC))>=0 &&
               roundMin(ad-PC, dir)<roundMin(adr-PC, dir))
             adr=ad;
+          omatch+=(float) other->size/SEARCHLIMIT;
         }
       else if ((ad=search_org_other(this,t,sz,dir,PC))>=0)
-        adr=ad; // wrap around search
+        {
+          adr=ad; // wrap around search
+          omatch+=(float) other->size/SEARCHLIMIT;
+        }
     }
   else
      {
@@ -212,15 +216,16 @@ void cpu::adr(int& address, int& sz, int dir)
           if (other&& (ad=search_org_other(other,t,sz,dir,PC))>=0 &&
               roundMin(ad-PC, dir)<roundMin(adr-PC,dir))
             adr=ad;
+          omatch+=(float) other->size/SEARCHLIMIT;
         }
-       else if (other && (ad=search_org_other(other,t,sz,dir,PC))>=0) 
-         adr=ad;
+       else if (other && (ad=search_org_other(other,t,sz,dir,PC))>=0)
+         {
+           adr=ad;
+           omatch+=(float) other->size/SEARCHLIMIT;
+         }
      }
   
   address=adr;
-  if (other && address>other->start && address<other->start+other->size &&
-      address != PC+sz+1)
-    omatch+=(float) other->size/SEARCHLIMIT;
 }
 
 
@@ -236,7 +241,7 @@ void cpu::Mal()
     // zero out deallocated region
     for (i=AX+toAlloc; i<MEMSZ && i<AX+allocatedSize; ++i)
       soup[i]=nop0;
-  updateTemplates(start+daught_offs, toAlloc);
+  //updateTemplates(start+daught_offs, toAlloc);
 //#ifdef EXACT_TEMPLATE
 //  if (allocatedSize>toAlloc && soup[AX+toAlloc-1]<=nop1)
 //    {
@@ -272,7 +277,7 @@ void cpu::Divide ()
 
   divs++;
 
-  updateTemplates(start+daught_offs, allocatedSize);
+  //updateTemplates(start+daught_offs, allocatedSize);
 
   /* compare daughter with parent or with other org */
   if (allocatedSize>=size && (matched=!memcmp(soup+start+daught_offs,genome,size*sizeof(instr_set)))) result=name;

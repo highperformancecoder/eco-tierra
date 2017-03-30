@@ -348,9 +348,9 @@ void etierra_t::display_sig(TCL_args args)
 //      while (orgB.inst_exec<100000*orgB.size && orgB.divs<3) orgB.execute(); 
       orgA.init(torgs[org].data(),torgs[org].size(),org);
       //while (orgA.inst_exec<100000*orgA.size && orgA.divs<3) orgA.execute(); 
-      cout << "at orgB.inst_exec="<<orgA.inst_exec<<endl;
-      cout << org << ":self = " << classn[orgA.results().clas] << 
-           " result: "<<orgA.results().result<<endl;
+//      cout << "at orgB.inst_exec="<<orgA.inst_exec<<endl;
+//      cout << org << ":self = " << classn[orgA.results().clas] << 
+//           " result: "<<orgA.results().result<<endl;
       for (int i=0; i<orgnms.size(); i++)
 	{
           cpu orgA, orgB;
@@ -364,9 +364,11 @@ void etierra_t::display_sig(TCL_args args)
 	  orgB.init(torgs[orgnms[i]].data(),torgs[orgnms[i]].size(),orgnms[i]);
 	  ::tournament(orgA,orgB,fresult,rresult,false);
 	  if (rresult.clas!=noninteract)
-	    cout << org << ":"<< orgnms[i] <<" = "<<classn[rresult.clas]<<" result:"<<rresult.result<<endl;
+	    cout << org << ":"<< orgnms[i] <<" = "<<classn[rresult.clas]<<" result:"<<rresult.result<<
+              " mu="<<rresult.mu<<endl;
 	  if (fresult.clas!=noninteract)
-	    cout << orgnms[i] <<":"<<org<<" = "<<classn[fresult.clas]<<" result:"<<fresult.result<<endl;
+	    cout << orgnms[i] <<":"<<org<<" = "<<classn[fresult.clas]<<" result:"<<fresult.result<<
+              " mu="<<fresult.mu<<endl;
 	}
     }
 
