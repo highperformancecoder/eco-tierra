@@ -3,9 +3,9 @@ use_namespace etierra
 genebank.Init genebank r
 soup.tournamentMode 1
 soup.setMaxCells 4
-injectOrg 0177aaj
+injectOrg 0187abb
 addEmptyCell
-injectOrg 0169abf
+injectOrg 0159aae
 addEmptyCell
 #puts "interacts=[soup.interacts]"
 #soup.cells.@elem 2

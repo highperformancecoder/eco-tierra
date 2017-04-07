@@ -410,7 +410,9 @@ void Soup::run(unsigned timeSlices)
           if (flawRate && tstep % flawRate == 0) // perform instruction flaws
             instr = CPU::Instr_set(uni.rand()* CPU::instr_sz);
           cell.cpu.execute(instr);
-          if (cell.cpu.PC>=memSz()) cell.cpu.PC-=memSz(); //wrap around
+          size_t m=memSz();
+          while (cell.cpu.PC>=m) cell.cpu.PC-=m; //wrap around
+          while (cell.cpu.PC<0) cell.cpu.PC+=m; //wrap around
         }
     }
 }

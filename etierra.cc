@@ -133,7 +133,7 @@ void Etierra::insertResults()
         
         // if more than one active cell is in play, and no in/out
         // matches have occurred, rewrite the result as a noninteract
-        if (genNames.size()>0 && /*cell->result.inMatches==0 && */
+        if (genNames.size()>0 &&
             cell->result.inMatches+cell->result.outMatches==0)
           cell->result.clas=Result::noninteract;
 
