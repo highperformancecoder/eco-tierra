@@ -150,9 +150,8 @@ inline void cpu::execute()
 {
   int dummy, tmpPC;
 
-  PC&=MEMSZ-1;
   //prInstr();
-  switch (soup[PC])
+  switch (soup[PC&(MEMSZ-1)])
     {
     case nop0: case nop1: PC++; break;
     case pushA: push(AX); PC++; break;
@@ -204,5 +203,8 @@ inline void cpu::execute()
     case divide: Divide(); PC++; break; 
     }
 
+  while (PC>=MEMSZ) PC-=MEMSZ;
+  while (PC<0) PC+=MEMSZ;
+  
   inst_exec++;
 }

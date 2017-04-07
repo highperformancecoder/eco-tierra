@@ -415,7 +415,13 @@ resultd_t cpu::results()
      database, whereas in once it didn't, even if they may be neutrally
      equivalent */
     {
-      resultd.clas=(divs==1)? once: nonrepeat;
+      switch (divs)
+        {
+        case 0: resultd.clas=noninteract; break;
+        case 1: resultd.clas=once; break;
+        default: resultd.clas=nonrepeat; break;
+        }
+
       // save first successful known reproduction, or unknown otherwise
       if (strlen(div1Result)>0 && (strcmp(div1Result,"unknown")!=0 || strlen(div2Result)==0)) 
         resultd.result=div1Result;
