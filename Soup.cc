@@ -116,14 +116,14 @@ Word Soup::adr(Word address, Word& size, int dir)
         //wrap around
         if (cell>=int(cells.size())) cell=0;
         if (cell==-1) cell=cells.size()-1;
+        if (cell==this_cell) break;
         if (find_closest_match(address,cells[cell].templates,t,
                                adr,dir, memSz()))
           {
             updateResultMatches(this_cell, cell);
             return adr;
           }
-        if (cell==this_cell) break;
-      }
+     }
   else //check alternate directions if dir==0
     {
       int fcell=this_cell, bcell=this_cell;
