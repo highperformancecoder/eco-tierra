@@ -376,6 +376,11 @@ void Soup::mutate()
 
 void Soup::run(unsigned timeSlices)
 {
+  double l2MemSz=log(cells.capacity() * 1<<Cell_bitsize)/log(2);
+  int floorL2=l2MemSz;
+  if (l2MemSz>floorL2) floorL2++;
+  Word memMask=(1<<floorL2)-1;
+  
   // counter used to detect soup death
   int numInactiveCells=0;
   /* a timeslice is 10 * cell.size()^slicePow instructions */
@@ -410,9 +415,7 @@ void Soup::run(unsigned timeSlices)
           if (flawRate && tstep % flawRate == 0) // perform instruction flaws
             instr = CPU::Instr_set(uni.rand()* CPU::instr_sz);
           cell.cpu.execute(instr);
-          size_t m=memSz();
-          while (cell.cpu.PC>=m) cell.cpu.PC-=m; //wrap around
-          while (cell.cpu.PC<0) cell.cpu.PC+=m; //wrap around
+          cell.cpu.PC&=memMask;
         }
     }
 }
