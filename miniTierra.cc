@@ -216,8 +216,9 @@ void cpu::adr(int& address, int& sz, int dir)
        else if (other && (ad=search_org_other(other,t,sz,dir,PC))>=0)
          adr=ad;
      }
-  
-  omatch+=(abs(adr-PC)>daught_offs)? (float) other->size/SEARCHLIMIT:0.0;
+
+  // only update omatch if match crosses cell lines.
+  omatch+= (other && (adr&~(daught_offs-1))!=(PC&~(daught_offs-1)))? ((float) other->size/SEARCHLIMIT):0.0;
   address=adr;
 }
 
