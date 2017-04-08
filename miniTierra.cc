@@ -197,7 +197,6 @@ void cpu::adr(int& address, int& sz, int dir)
           if ((ad=search_org_other(this,t,sz,dir,PC))>=0 &&
               roundMin(ad-PC, dir)<roundMin(adr-PC, dir))
             adr=ad;
-          omatch+=(float) other->size/SEARCHLIMIT;
         }
       else if ((ad=search_org_other(this,t,sz,dir,PC))>=0)
         adr=ad; // wrap around search
@@ -212,18 +211,13 @@ void cpu::adr(int& address, int& sz, int dir)
           // check going the other way
           if (other&& (ad=search_org_other(other,t,sz,dir,PC))>=0 &&
               roundMin(ad-PC, dir)<roundMin(adr-PC,dir))
-            {
-              adr=ad;
-              omatch+=(float) other->size/SEARCHLIMIT;
-            }
+            adr=ad;
         }
        else if (other && (ad=search_org_other(other,t,sz,dir,PC))>=0)
-         {
-           adr=ad;
-           omatch+=(float) other->size/SEARCHLIMIT;
-         }
+         adr=ad;
      }
   
+  omatch+=(abs(adr-PC)>daught_offs)? (float) other->size/SEARCHLIMIT:0.0;
   address=adr;
 }
 
