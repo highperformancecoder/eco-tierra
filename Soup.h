@@ -14,7 +14,7 @@ struct Cell
   unsigned cellID, owner;
   ref<Rambank_entry> organism;
   CPU cpu, cpuAtLastDiv;
-  std::string lastResult;
+  std::string firstResult, lastResult;
   /// if a daughter cell has been allocated by calling mal, but divide
   /// not yet called
   bool daughterAllocated; 

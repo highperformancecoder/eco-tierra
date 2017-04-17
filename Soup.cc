@@ -262,6 +262,9 @@ Word Soup::mal(Word size, unsigned owner)
 
 void Cell::updateResult(const string& offspringName)
 {
+  // this ensures first viable replication is recorded for nonrepeat
+  if (firstResult.empty() || firstResult=="unknown") firstResult=offspringName;
+
   // update result structure
   if (result.clas == Result::noninteract || result.clas == Result::infertile)
     {
@@ -279,11 +282,10 @@ void Cell::updateResult(const string& offspringName)
           result.result = offspringName;
         }
       else
-        result.clas = Result::nonrepeat;
-      // this ensures first viable replication is recorded for nonrepeat
-      if (result.result.empty() || result.result=="unknown")
-        result.result = offspringName;
-      
+        {
+          result.clas = Result::nonrepeat;
+          result.result = firstResult;
+        }
       // note at this point, cpu.divs has not been updated with this
       // division, so cpu.divs refers to the number of divisions since
       // the first division
