@@ -189,16 +189,13 @@ inline void cpu::execute()
       /* if PC is unchanged in this call (ie no match) then increment
          PC to prevent infinite recursion */
     case call: push(PC); 
-    case jmpo: tmpPC=PC; adr(PC,dummy); 
-      if (tmpPC==PC) 
-        PC++; 
-      break;
-    case jmpb: tmpPC=PC; adr(PC,dummy,-1); if (tmpPC==PC) PC++; break;
+    case jmpo: adr(PC,dummy);       break;
+    case jmpb: adr(PC,dummy,-1); break;
     case ret: pop(PC); PC++; break;
 
-    case adro: adr(AX,CX); adjustPCafterAdr(); break;
-    case adrb: adr(AX,CX,-1); adjustPCafterAdr(); break;
-    case adrf: adr(AX,CX,1); adjustPCafterAdr(); break;
+    case adro: adr(AX,CX); /*adjustPCafterAdr();*/ break;
+    case adrb: adr(AX,CX,-1); /*adjustPCafterAdr();*/ break;
+    case adrf: adr(AX,CX,1); /*adjustPCafterAdr();*/ break;
     case mal:   Mal(); PC++; break;
     case divide: Divide(); PC++; break; 
     }

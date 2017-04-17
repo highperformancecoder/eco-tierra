@@ -284,7 +284,7 @@ void etierra_t::addresults(TCL_args args)
       if (fresult.clas!=noninteract) 
 	results[poname(orgnms[i],org)]=fresult;
       if (fresult.clas!=noninteract || rresult.clas!=noninteract)
-        cout << (const char*)poname(orgnms[i],org) << " result:" << classn[fresult.clas] << " " << classn[rresult.clas] << std::endl;
+        cout << (const char*)poname(orgnms[i],org) << " result:" << classn[fresult.clas] << " " << classn[rresult.clas] << " "<<rresult.result<<std::endl;
     }
 }
 

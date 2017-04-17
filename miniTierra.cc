@@ -181,10 +181,10 @@ void cpu::adr(int& address, int& sz, int dir)
       t |= !soup[j];
     }
   sz=j-PC-1;
-  int adr=PC+sz+1; // default return value if no match  
   /* zero template, or template too large no match */
-  if (sz==0||sz>=8*sizeof(int)) return;  
+  if (sz==0||sz>=8*sizeof(int)) {PC++; return;}  
   assert(t<(1<<sz));
+  int adr=PC+sz+1; //-1;
 
   if (PC>=start && (!other || start>other->start || PC<other->start))
     {
@@ -219,7 +219,11 @@ void cpu::adr(int& address, int& sz, int dir)
 
   // only update omatch if match crosses cell lines.
   omatch+= (other && (adr&~(daught_offs-1))!=(PC&~(daught_offs-1)))? ((float) other->size/SEARCHLIMIT):0.0;
-  address=adr;
+  int prevPC=PC;
+  PC+=sz+1;
+  if (adr>=0)
+    address=adr;
+  if (PC==prevPC) PC++; // is this even possible?
 }
 
 
@@ -274,7 +278,8 @@ void cpu::Divide ()
   //updateTemplates(start+daught_offs, allocatedSize);
 
   /* compare daughter with parent or with other org */
-  if (allocatedSize>=size && (matched=!memcmp(soup+start+daught_offs,genome,size*sizeof(instr_set)))) result=name;
+  if (allocatedSize>=size && (matched=!memcmp(soup+start+daught_offs,genome,size*sizeof(instr_set))))
+    result=name;
   else if (other!=NULL && allocatedSize>=other->size)
     {
       if (matched=!memcmp(soup+start+daught_offs,other->genome,other->size*sizeof(instr_set)))
