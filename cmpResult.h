@@ -70,12 +70,9 @@ namespace eco_tierra_3
           return true;
         case ::Result::once: case ::Result::nonrepeat:
           return (strlen(result.data)==0 && x.result=="unknown" ||
-                  std::string(result.data)==x.result) &&
-            (x.outMatches>0 || abs(1/sigma-x.firstDiv) < 1);
+                  std::string(result.data)==x.result) ;
         case ::Result::repeat:
-          return std::string(result.data)==x.result && 
-            (x.outMatches>0 || abs(1/sigma-x.firstDiv) < 1);
-          //&& abs(mu-x.outMatches) < 1 && abs(nu-x.inMatches) < 1;
+          return std::string(result.data)==x.result ;
                                                                                        }
       return false; // shouldn't be here
     }

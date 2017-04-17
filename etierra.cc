@@ -228,13 +228,14 @@ void Etierra::cmpResults()
       if (oldResult.clas==Result::infertile && newKey.find(' ')!=string::npos)
         oldResult.clas=Result::noninteract;
 
-      // in eco-tierra3, result needed to match one of the parents, otherwise it is infertile
-//      if (newResult.clas!=Result::noninteract && !newResult.result.empty() && 
-//          newKey.find(newResult.result)==string::npos)
-//        newResult.clas=Result::infertile;
-        
       count++;
-
+      
+      // in eco-tierra3, result needed to match one of the parents,
+      // otherwise it is infertile
+      if (newKey.find(' ')==string::npos // self records
+          && oldResult.clas==Result::infertile && newResult.result=="unknown")
+            newResult.clas=Result::infertile;
+     
       if (oldResult!=newResult)
         {
           cout <<"keyPresent="<<keyPresent<<endl;
