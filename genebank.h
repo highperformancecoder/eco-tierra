@@ -5,6 +5,7 @@
 #include "result.h"
 #include <random.h>
 #include <cachedDBM.h>
+#include <pack_stl.h>
 
 using classdesc::ref;
 

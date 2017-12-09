@@ -14,7 +14,7 @@ endif
 include $(ECOLAB_HOME)/include/Makefile
 
 MODELS=etierra
-OTHER_OBJS=CPUInst0.o Soup.o genebank.o neutrals.o complement.o
+OTHER_OBJS=CPUInst0.o Soup.o genebank.o neutrals.o complement.o VectorCPU.o
 FLAGS+=-std=c++11 $(OPT) -DNO_HASH
 
 UTILS=BDBmerge
