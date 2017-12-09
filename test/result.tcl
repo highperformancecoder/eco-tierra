@@ -17,15 +17,15 @@ proc assert x {
     }
 }
 
-injectOrg 0080aaa
-run 200
-set r [soup.cells.@elem 0].result
-assert \[$r.outMatches\]==0
-assert \[$r.inMatches\]==0
-assert "\[string equal \"\[$r.classDescription\]\" repeat\]"
-assert "\[string equal \"\[$r.result\]\" 0080aaa\]"
-assert \[$r.firstDiv\]==830
-assert \[$r.copyTime\]==813
+#injectOrg 0080aaa
+#run 200
+#set r [soup.cells.@elem 0].result
+#assert \[$r.outMatches\]==0
+#assert \[$r.inMatches\]==0
+#assert "\[string equal \"\[$r.classDescription\]\" repeat\]"
+#assert "\[string equal \"\[$r.result\]\" 0080aaa\]"
+#assert \[$r.firstDiv\]==830
+#assert \[$r.copyTime\]==813
 
 
 soup.clear
@@ -56,12 +56,12 @@ assert \[$r.firstDiv\]==480
 assert \[$r.copyTime\]==463
 
 #
-soup.clear
-injectOrg 0045aaa
-run 200
-set r [soup.cells.@elem 0].result
-assert \[$r.outMatches\]==0
-assert \[$r.inMatches\]==0
-assert "!\[string equal \"\[$r.result\]\" 0045aaa\]"
+#soup.clear
+#injectOrg 0045aaa
+#run 200
+#set r [soup.cells.@elem 0].result
+#assert \[$r.outMatches\]==0
+#assert \[$r.inMatches\]==0
+#assert "!\[string equal \"\[$r.result\]\" 0045aaa\]"
 
 

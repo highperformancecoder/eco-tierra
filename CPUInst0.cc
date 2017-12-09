@@ -83,3 +83,19 @@ bool CPUInst0::sameState(const CPUInst0& other)
     }
   return r;
 }
+
+Template CPUInst0::templateAt(instr_set* s, size_t n)
+{
+  if (*s > CPU::nop1)
+    return Template{-1,0};
+  Template t{1,0};
+  instr_set* end=s+n;
+  for (auto i=s; i<end && *s <= nop1; ++s)
+    {
+      t.t<<=1;
+      t.t|=*s;
+      t.size++;
+    }
+  return t;
+}
+

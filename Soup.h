@@ -144,6 +144,11 @@ public:
   /// find template \a templ starting from \a PC. backwards if \a
   /// dir=-1, forwards if \a dir=1 and outwards if dir=0.
   Word adr(/*Word templ,*/ Word PC, Word& template_sz, int dir);
+  /// find template \a templ starting from \a PC. backwards if \a
+  /// dir=-1, forwards if \a dir=1 and outwards if dir=0.
+  Word adrFromTempl(Word templ, Word PC, Word tEnd, int dir);
+  Word adrFromTempl(Word templ, Word PC, int dir)
+  {return adrFromTempl(templ,PC,PC+1,dir);}
 
   /// randomly replaces one memory location with random contents
   void mutate();

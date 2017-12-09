@@ -70,6 +70,10 @@ public:
     return int((i&fwd)!=0) - int((i&bwd)!=0);
   }
 
+  /// search for a template at s, looking no further than s+n.
+  /// @return zero length template if no template present
+  Template templateAt(instr_set* s, size_t n);
+  
 private:
   CLASSDESC_ACCESS(CPUInst0);
   unsigned myCellID;

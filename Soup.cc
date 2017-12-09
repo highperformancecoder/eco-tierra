@@ -15,19 +15,14 @@ void Cell::updateTemplates()
 {
   templates.clear();
   for (size_t i=0; i<organism->genome.size(); ++i)
-    if (organism->genome[i] <= CPU::nop1)
-      {
-        Word t(1);
-        for (; i<organism->genome.size() && organism->genome[i] <= CPU::nop1; ++i)
-          {
-            t<<=1;
-            t|=organism->genome[i];
-          }
-        //        templates.insert(make_pair(t, (cellID<<Cell_bitsize) + i));
-        if (t>=templates.size()) templates.resize(t+1);
-        templates[t].push_back((cellID<<Cell_bitsize) + i);
-      }
-  
+    {
+      auto t=cpu.templateAt(&organism->genome[i], organism->genome.size()-i);
+      if (t.size==0) continue;
+      
+      //        templates.insert(make_pair(t, (cellID<<Cell_bitsize) + i));
+      if (t>=templates.size()) templates.resize(t+1);
+      templates[t].push_back((cellID<<Cell_bitsize) + i+t.size);
+    }
 }
 
 /**
@@ -97,14 +92,18 @@ Word Soup::adr(Word address, Word& size, int dir)
       t |= !g;
     }
   size=i-idx-1;
-  
+  if (size==0 || size>=8*sizeof(Word)) return -1;
 
+  return adrFromTempl(t,address,i,dir);
+}
+
+Word Soup::adrFromTempl(Word t, Word address, Word i, int dir)
+{
+  Cell& cell=get_cell_idx(address);
   // just implement exact matching
   // now search outwards for matching templates
   int this_cell=cell.cellID;
   Word adr=(this_cell<<Cell_bitsize)|i&~mask; // place address in this_cell
-  if (size==0 || size>=8*sizeof(Word)) return -1;
-
   // see if matching template is in current cell
   if (find_closest_match_cell(address,cells[this_cell].templates,t,
                               adr,dir, memSz())) 
@@ -169,6 +168,7 @@ void  Soup::insert_genome(const classdesc::ref<Rambank_entry>& organism)
     {
       // allocate daughter cell next to parent for comparison with 3.x
       tournamentAllocations[cells.size()-1]=cells.size();
+      cells.emplace_back();
     }
   else
     reaper_q.push_front(cells.size()-1);

@@ -13,6 +13,15 @@ typedef unsigned int uWord;
 // check against eco-tierra.3
 const unsigned Cell_bitsize=9;
 
+struct Template
+{
+  Word t;
+  int size;
+  operator Word() const {return t;}
+  Template() {}
+  Template(Word t,int size): t(t), size(size) {}
+};
+
 #include "CPUInst0.h"
 #include "CPUInst0.cd"
 
