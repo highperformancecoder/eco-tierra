@@ -1,3 +1,4 @@
+#include "VectorCPU.h"
 #include "Soup.h"
 #include "complement.h"
 #include "error.h"
@@ -10,8 +11,8 @@
 using namespace std;
 using ecolab::error;
 
-
-void Cell::updateTemplates()
+template <class CPU>
+void Cell<CPU>::updateTemplates()
 {
   templates.clear();
   for (size_t i=0; i<organism->genome.size(); ++i)
@@ -28,7 +29,8 @@ void Cell::updateTemplates()
 /**
    Find the closest memory location in range to \a PC, and return the value in match if found. Returns true if a valid template is found, false otherwise
 */
-bool find_closest_match(Word PC, const Cell::TemplateMap& templates, Word t,
+template <class TemplateMap>
+bool find_closest_match(Word PC, const TemplateMap& templates, Word t,
                         Word& match, int dir, Word soupSz)
 {
   if (t>=templates.size()) return false;
@@ -55,7 +57,8 @@ bool find_closest_match(Word PC, const Cell::TemplateMap& templates, Word t,
 /**
    Find the closest memory location in range to \a PC, and return the value in match if found. Returns true if a valid template is found, false otherwise
 */
-bool find_closest_match_cell(Word PC, const Cell::TemplateMap& templates, Word t, Word& match, int dir, Word soupSz)
+template <class T>
+bool find_closest_match_cell(Word PC, const T& templates, Word t, Word& match, int dir, Word soupSz)
 {
   if (t>=templates.size()) return false;
 
@@ -79,25 +82,26 @@ void incDecCells(int& fcell, int& bcell, int max)
   if (--bcell<0) bcell+=max;
 }
 
-Word Soup::adr(Word address, Word& size, int dir)
+template <class CPU>
+Word Soup<CPU>::adr(Word address, Word& size, int dir)
 {
-  Word i, t, g;
   /* load up template into t, */
   Cell& cell=get_cell_idx(address);
   auto& gen=cell.organism->genome;
   auto idx=address&~mask;
-  for (i=idx+1, t=1; i<gen.size() && (g=gen[i])<=CPU::nop1; ++i)
-    {
-      t <<=1; 
-      t |= !g;
-    }
-  size=i-idx-1;
-  if (size==0 || size>=8*sizeof(Word)) return -1;
+  idx++;
+  Template t=CPU::templateAt(&gen[idx], gen.size()-idx);
+  // invert template for matching, ensuring leading size bit is set
+  t.t=~t.t;
+  t.t&=((1<<t.size)-1);
+  t.t|=1<<t.size;
+  if (t.size==0 || t.size>=8*sizeof(Word)) return -1;
 
-  return adrFromTempl(t,address,i,dir);
+  return adrFromTempl(t.t,address,idx+t.size,dir);
 }
 
-Word Soup::adrFromTempl(Word t, Word address, Word i, int dir)
+template <class CPU>
+Word Soup<CPU>::adrFromTempl(Word t, Word address, Word i, int dir)
 {
   Cell& cell=get_cell_idx(address);
   // just implement exact matching
@@ -156,7 +160,8 @@ Word Soup::adrFromTempl(Word t, Word address, Word i, int dir)
   return adr;
 }
 
-void  Soup::insert_genome(const classdesc::ref<Rambank_entry>& organism)
+template <class CPU>
+void  Soup<CPU>::insert_genome(const classdesc::ref<Rambank_entry>& organism)
 {
   rambank->insert(organism);
   cells.push_back(Cell(cells.size(), organism));
@@ -176,7 +181,8 @@ void  Soup::insert_genome(const classdesc::ref<Rambank_entry>& organism)
 }
 
 
-Word Soup::mal(Word size, unsigned owner)
+template <class CPU>
+Word Soup<CPU>::mal(Word size, unsigned owner)
 {
   unsigned cellID;
 
@@ -260,7 +266,8 @@ Word Soup::mal(Word size, unsigned owner)
   
 }
 
-void Cell::updateResult(const string& offspringName)
+template <class CPU>
+void Cell<CPU>::updateResult(const string& offspringName)
 {
   // this ensures first viable replication is recorded for nonrepeat
   if (firstResult.empty() || firstResult=="unknown") firstResult=offspringName;
@@ -293,11 +300,12 @@ void Cell::updateResult(const string& offspringName)
     }
   cpuAtLastDiv = cpu;
   lastResult=offspringName;
-  cpu.stackLowWater=cpu.SP; // reset for sameState calc
+  cpu.stackLowWater=cpu.SP(); // reset for sameState calc
 }
       
 
-bool Soup::divide(Word c)
+template <class CPU>
+bool Soup<CPU>::divide(Word c)
 {
   unsigned cellID = c >> Cell_bitsize;
   Cell& cell=cells[cellID];
@@ -323,7 +331,7 @@ bool Soup::divide(Word c)
           // for comparison with eco-tierra.3, actually check the
           // result against the active cells to see if cell.organism
           // is contained as a prefix
-          for (Cells::iterator c=cells.begin(); c!=cells.end(); ++c)
+          for (typename Cells::iterator c=cells.begin(); c!=cells.end(); ++c)
             if (c->cpu.active && cell.size() >= c->size() &&
                 memcmp(&c->organism->genome[0], &cell.organism->genome[0],
                        c->size()*sizeof(cell.organism->genome[0]))==0)
@@ -354,7 +362,8 @@ bool Soup::divide(Word c)
  return true;
 }
 
-void Soup::mutate()
+template <class CPU>
+void Soup<CPU>::mutate()
 {
   // compute total number of memory locations
   size_t nloc = 0;
@@ -370,13 +379,14 @@ void Soup::mutate()
         classdesc::ref<Rambank_entry> tmp; 
         tmp=(*cells[i].organism); //pin the old genome
         tmp->genome[r-j] = 
-          CPU::Instr_set(uni.rand() * CPU::instr_sz);
+          typename CPU::Instr_set(uni.rand() * CPU::instr_sz);
         cells[i].organism = tmp;
         break;
       }
 }
 
-void Soup::run(unsigned timeSlices)
+template <class CPU>
+void Soup<CPU>::run(unsigned timeSlices)
 {
   double l2MemSz=log(cells.capacity() * 1<<Cell_bitsize)/log(2);
   int floorL2=l2MemSz;
@@ -413,11 +423,11 @@ void Soup::run(unsigned timeSlices)
             mutate();
           // TODO: maybe cache instruction fetches
           // use the indexed version of cells in case cells changes
-          CPU::Instr_set instr(CPU::Instr_set(get(cell.cpu.PC)));
+          auto instr = typename CPU::Instr_set(get(cell.cpu.PC()));
           if (flawRate && tstep % flawRate == 0) // perform instruction flaws
-            instr = CPU::Instr_set(uni.rand()* CPU::instr_sz);
+            instr = typename CPU::Instr_set(uni.rand()* CPU::instr_sz);
           cell.cpu.execute(instr);
-          cell.cpu.PC&=memMask;
+          cell.cpu.PC(cell.cpu.PC()&memMask);
         }
     }
 }
@@ -444,7 +454,8 @@ int log2i(unsigned v)
 #endif
 }
 
-bool Soup::interacts()
+template <class CPU>
+bool Soup<CPU>::interacts()
 {
   // set of all templates in Soup
   std::set<Word> templates;
@@ -480,3 +491,8 @@ bool Soup::interacts()
     }
   return false;
 }
+
+template class Cell<CPUInst0>;
+template class Soup<CPUInst0>;
+template class Cell<VectorCPU>;
+template class Soup<VectorCPU>;

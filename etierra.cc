@@ -13,14 +13,13 @@ using namespace std;
 
 Etierra etierra;
 make_model(etierra);
-Soup& soup=etierra.soup;
+Soup<CPUInst0>& soup=etierra.soup;
 
 void Etierra::InjectOrg(const string& oname)
 {
   if (!genebank.key_exists(oname))
     throw error("%s does not exist in the genebank", oname.c_str());
-  ::ref<Rambank_entry> genome(genebank[oname]);
-  soup.insert_genome(genome);
+  soup.insert_genome(genebank[oname]);
 }
 
 void Etierra::importGenome(TCL_args filename)
@@ -48,7 +47,7 @@ void Etierra::importGenome(TCL_args filename)
 
   if (!gen) throw error("failed to find oganism code");
 
-  Rambank_entry org(name, parent);
+  Rambank_entry<CPUInst0::Instr_set> org(name, parent);
 
   string opcode, semi;
   int watchbits;
@@ -68,7 +67,7 @@ void Etierra::exportGenome(TCL_args args)
 {
   string name((char*)args);
   ofstream gen((char*)args);
-  Rambank_entry& org=genebank[name];
+  Rambank_entry<CPUInst0::Instr_set>& org=genebank[name];
   gen << "\nformat: 3 bits 0 Exsh TCsh TPs MFs MTd MBh\n";
   gen << "genotype: "<<name<<" genetic: 0,"<<org.genome.size()<<
     " parent genotype: "<<org.parent<<"\n";
@@ -88,8 +87,7 @@ void Etierra::exportGenome(TCL_args args)
 
 bool Etierra::anyCellDivsLT3() const
 {
-  for (Soup::Cells::const_iterator cell=soup.cells.begin(); 
-       cell!=soup.cells.end(); ++cell)
+  for (auto cell=soup.cells.begin(); cell!=soup.cells.end(); ++cell)
     if (cell->cpu.active && cell->cpu.divs<3)
       return true;
   return false;
@@ -104,8 +102,7 @@ void Etierra::runJoust()
 //    if (cell->cpu.active)
 //      while (cell->cpu.inst_exec < 10000*cell->size() && cell->cpu.divs<3)
 //        cell->cpu.execute(CPU::Instr_set(soup.get(cell->cpu.PC)));
-    for (Soup::Cells::const_iterator cell=soup.cells.begin(); 
-           cell!=soup.cells.end(); ++cell)
+    for (auto cell=soup.cells.begin(); cell!=soup.cells.end(); ++cell)
       if (cell->cpu.active)
           maxTime+=10000*cell->size();
     while (soup.tstep < maxTime && anyCellDivsLT3())
@@ -115,13 +112,13 @@ void Etierra::runJoust()
 
 void Etierra::insertResults()
 {
-  for (vector<Cell>::iterator cell=soup.cells.begin(); 
+  for (auto cell=soup.cells.begin(); 
        cell!=soup.cells.end(); ++cell)
     if (cell->cpu.active && cell->organism && !cell->organism->name.empty())
       {
 
         multiset<string> genNames; // genome names of all other cells in soup 
-        for (vector<Cell>::iterator c=soup.cells.begin(); 
+        for (auto c=soup.cells.begin(); 
              c!=soup.cells.end(); ++c)
           if (c!=cell && c->organism && !c->organism->name.empty() && c->inserted)
             genNames.insert(c->organism->name);

@@ -19,7 +19,7 @@ std::ostream& operator<<(std::ostream& o, CPUInst0::instr_set instr)
 }
 
 // reference to the global soup
-extern Soup& soup;
+extern Soup<CPUInst0>& soup;
 
 size_t CPUInst0::maxStackSz=100000000;
 const size_t CPUInst0::stackSz;
@@ -27,7 +27,7 @@ const size_t CPUInst0::stackSz;
 void CPUInst0::prInstr(Instr_set instr)
 
 {
-  std::cout << inst_exec<<":PC="<<PC <<":"<<classdesc::enum_keys<Instr_set>()(instr) << std::endl;
+  std::cout << inst_exec<<":PC="<<m_PC <<":"<<classdesc::enum_keys<Instr_set>()(instr) << std::endl;
 }
 
 int CPUInst0::moviiImpl(Word AX, Word BX)
@@ -41,15 +41,15 @@ int CPUInst0::moviiImpl(Word AX, Word BX)
 void CPUInst0::adr(Word& reg, Word& template_sz, int dir)
 {
   //  PC%=soup.memSz();
-  Word a=soup.adr(PC,template_sz,dir);
-  Word prevPC=PC;
+  Word a=soup.adr(m_PC,template_sz,dir);
+  Word prevPC=m_PC;
   if (template_sz<8*sizeof(Word))
-    PC+=template_sz+1;
+    m_PC+=template_sz+1;
   if (a>=0) 
       reg=a;
   else
     faults++;
-  if (PC==prevPC) PC++; //avoid getting stuck in a loop
+  if (m_PC==prevPC) m_PC++; //avoid getting stuck in a loop
 }
 
 Word CPUInst0::malImpl(Word size)
@@ -73,11 +73,11 @@ bool CPUInst0::divideImpl(Word cell)
 bool CPUInst0::sameState(const CPUInst0& other)
 {
   bool r = AX==other.AX && BX==other.BX && CX==other.CX && DX==other.DX &&
-    PC%soup.memSz() == other.PC%soup.memSz();
+    m_PC%soup.memSz() == other.m_PC%soup.memSz();
   if (r)
     {
-      int offs=other.SP-SP;
-      for (int k=stackLowWater; k<SP; k++) 
+      int offs=other.m_SP-m_SP;
+      for (int k=stackLowWater; k<m_SP; k++) 
         if (stack[k&(stackSz-1)]!=other.stack[(k+offs)&(stackSz-1)])
           return false;
     }
@@ -93,7 +93,7 @@ Template CPUInst0::templateAt(instr_set* s, size_t n)
   for (auto i=s; i<end && *s <= nop1; ++s)
     {
       t.t<<=1;
-      t.t|=*s;
+      t.t|=!*s;
       t.size++;
     }
   return t;

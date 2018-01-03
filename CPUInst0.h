@@ -34,14 +34,17 @@ public:
   bool active;
   unsigned inst_exec;
   int faults, divs, movDaught;
-  Word AX,BX,CX,DX,PC,SP,daughter;
-
+  Word AX,BX,CX,DX,daughter;
+  Word PC() const {return m_PC;}
+  Word PC(Word x) {return m_PC=x;}
+  Word SP() const {return m_SP;}
+  
   CPUInst0(unsigned cell=0) {init(cell);}
 
   void init(unsigned cell) {
     active=false;
-    AX=BX=CX=DX=SP=0;
-    PC=cell<<Cell_bitsize;
+    AX=BX=CX=DX=m_SP=0;
+    m_PC=cell<<Cell_bitsize;
     daughter=-1;
     myCellID=cell;
     faults=divs=inst_exec=0;
@@ -72,16 +75,17 @@ public:
 
   /// search for a template at s, looking no further than s+n.
   /// @return zero length template if no template present
-  Template templateAt(instr_set* s, size_t n);
+  static Template templateAt(instr_set* s, size_t n);
   
 private:
   CLASSDESC_ACCESS(CPUInst0);
   unsigned myCellID;
-
-  void push(Word reg) {stack[SP++&(stackSz-1)]=reg;}
+  Word m_PC, m_SP;
+  
+  void push(Word reg) {stack[m_SP++&(stackSz-1)]=reg;}
   void pop(Word& reg) {
-    reg=stack[--SP&(stackSz-1)];
-    if (SP<stackLowWater) stackLowWater=SP;
+    reg=stack[--m_SP&(stackSz-1)];
+    if (m_SP<stackLowWater) stackLowWater=m_SP;
   }
 
 
@@ -100,52 +104,52 @@ inline void CPUInst0::execute(Instr_set instr)
   //prInstr(instr);
   switch (instr)
     {
-    case nop0: case nop1: PC++; break;
-    case pushA: push(AX); PC++; break;
-    case pushB: push(BX); PC++; break;
-    case pushC: push(CX); PC++; break;
-    case pushD: push(DX); PC++; break;
-    case popA: pop(AX); PC++; break;
-    case popB: pop(BX); PC++; break;
-    case popC: pop(CX); PC++; break;
-    case popD: pop(DX); PC++; break;
+    case nop0: case nop1: m_PC++; break;
+    case pushA: push(AX); m_PC++; break;
+    case pushB: push(BX); m_PC++; break;
+    case pushC: push(CX); m_PC++; break;
+    case pushD: push(DX); m_PC++; break;
+    case popA: pop(AX); m_PC++; break;
+    case popB: pop(BX); m_PC++; break;
+    case popC: pop(CX); m_PC++; break;
+    case popD: pop(DX); m_PC++; break;
 
-    case movDC: DX=CX; PC++; break;
-    case movBA: BX=AX; PC++; break;
+    case movDC: DX=CX; m_PC++; break;
+    case movBA: BX=AX; m_PC++; break;
     case movii: 
       if (moviiImpl(AX,BX))
         faults++;
       else
         movDaught++;
-    PC++; break;
-    case subCAB: CX=AX-BX; PC++; break;
-    case subAAC: AX=AX-CX; PC++; break;
-    case incA: AX++; PC++; break;
-    case incB: BX++; PC++; break;
-    case incC: CX++; PC++; break;
-    case decC: CX--; PC++; break;
-    case zero: CX=0; PC++; break;
-    case not0: CX |= !(CX&1); PC++; break;
-    case shl: CX<<=1; PC++; break;
-    case ifz: if (CX!=0) PC++; PC++; break;
+    m_PC++; break;
+    case subCAB: CX=AX-BX; m_PC++; break;
+    case subAAC: AX=AX-CX; m_PC++; break;
+    case incA: AX++; m_PC++; break;
+    case incB: BX++; m_PC++; break;
+    case incC: CX++; m_PC++; break;
+    case decC: CX--; m_PC++; break;
+    case zero: CX=0; m_PC++; break;
+    case not0: CX |= !(CX&1); m_PC++; break;
+    case shl: CX<<=1; m_PC++; break;
+    case ifz: if (CX!=0) m_PC++; m_PC++; break;
 
       /* if PC is unchanged in this call (ie no match) then increment
          PC to prevent infinite recursion */
-    case call: push(PC); 
-    case jmpo: /*tmpPC=PC;*/ adr(PC,sz,0); /*if (tmpPC==PC) {PC+=sz+1; faults++;}*/ break;
-    case jmpb: /*tmpPC=PC;*/ adr(PC,sz,-1); /*if (tmpPC==PC) {PC+=sz+1; faults++;}*/ break;
-    case ret: pop(PC); PC++; break;
+    case call: push(m_PC); 
+    case jmpo: /*tmpPC=PC;*/ adr(m_PC,sz,0); /*if (tmpPC==PC) {PC+=sz+1; faults++;}*/ break;
+    case jmpb: /*tmpPC=PC;*/ adr(m_PC,sz,-1); /*if (tmpPC==PC) {PC+=sz+1; faults++;}*/ break;
+    case ret: pop(m_PC); m_PC++; break;
 
     case adro: adr(AX,CX,0); /*PC+=CX+1;*/ break;
     case adrb: adr(AX,CX,-1); /*PC+=CX+1;*/ break;
     case adrf: adr(AX,CX,1); /*PC+=CX+1;*/ break;
-    case mal:  AX=daughter=malImpl(CX); PC++; break;
+    case mal:  AX=daughter=malImpl(CX); m_PC++; break;
     case divide: 
       if (daughter>=0 && divideImpl(daughter)) 
         divs++;
       else
         faults++;
-      PC++; 
+      m_PC++; 
       break; 
     }
 

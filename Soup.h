@@ -9,9 +9,11 @@
 
 using classdesc::ref;
 
+template <class CPU>
 struct Cell
 {
   unsigned cellID, owner;
+  typedef ::Rambank_entry<typename CPU::Instr_set> Rambank_entry;
   ref<Rambank_entry> organism;
   CPU cpu, cpuAtLastDiv;
   std::string firstResult, lastResult;
@@ -46,10 +48,14 @@ struct Cell
 
 static const uWord mask=~0U<<Cell_bitsize;
 
+template <class CPU>
 class Soup
 {
 public:
-  typedef CPU::instr_set Instr_set;
+  typedef ::Cell<CPU> Cell; 
+  typedef typename CPU::Instr_set Instr_set;
+  typedef ::Genebank<Instr_set> Genebank;
+  typedef ::Rambank_entry<Instr_set> Rambank_entry;
   CLASSDESC_ACCESS(Soup);
 private:
   Cell& get_cell_idx(uWord i) {

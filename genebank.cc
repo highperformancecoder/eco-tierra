@@ -1,4 +1,5 @@
 #include "genebank.h"
+#include "VectorCPU.h"
 #include <ecolab_epilogue.h>
 #include <iostream>
 using namespace std;
@@ -17,10 +18,11 @@ string tierraName(size_t size, size_t sequence)
   return o.str();
 }
 
-bool Genebank::registerEntry(cd::ref<Rambank_entry>& entry)
+template <class I>
+bool Genebank<I>::registerEntry(cd::ref<Rambank_entry>& entry)
 {
   string name;
-  Rambank::iterator existingEntry;
+  typename Rambank::iterator existingEntry;
 
   // check rambank and genebank to see if code is there
   if (!reverseGenebank.key_exists(entry->genome)
@@ -29,7 +31,7 @@ bool Genebank::registerEntry(cd::ref<Rambank_entry>& entry)
           existingEntry=rambank.find(cd::ref<Rambank_entry>(name)), 
           existingEntry == rambank.end()
           )
-      && !key_exists(name))
+      && !this->key_exists(name))
     {
       cd::ref<Rambank_entry> entryCopy(*entry);
       if (reverseGenebank.key_exists(entry->genome))
@@ -38,7 +40,7 @@ bool Genebank::registerEntry(cd::ref<Rambank_entry>& entry)
       do // keep going until we get a new name
         entryCopy->name=
           tierraName(entry->genome.size(), ++lastId[entry->genome.size()]);
-      while (rambank.count(entryCopy)||key_exists(entryCopy->name));
+      while (rambank.count(entryCopy)||this->key_exists(entryCopy->name));
       insert(entryCopy);
       return true;
     }
@@ -53,25 +55,27 @@ bool Genebank::registerEntry(cd::ref<Rambank_entry>& entry)
     }    
 }
 
-bool Genebank::findEntry(cd::ref<Rambank_entry>& entry)
+template <class I>
+bool Genebank<I>::findEntry(cd::ref<Rambank_entry>& entry)
 {
   // check genebank to see if code is there
   return !reverseGenebank.key_exists(entry->genome)
     || (entry->name=reverseGenebank[entry->genome],
-        !key_exists(entry->name));
+        !this->key_exists(entry->name));
 }
 
-string Genebank::archiveRambank()
+template <class I>
+string Genebank<I>::archiveRambank()
 {
   ecolab::eco_strstream extractedOrgs;
   vector<cd::ref<Rambank_entry> > toBeRemoved;
   
-  for (Rambank::iterator i=rambank.begin();
+  for (auto i=rambank.begin();
        i!=rambank.end(); ++i)
     {
       if ((*i)->maxPop > savMinNum)
         {
-          if (!key_exists((*i)->name))
+          if (!this->key_exists((*i)->name))
             extractedOrgs << (*i)->name;
           (*this)[(*i)->name]=**i;
         }
@@ -85,28 +89,31 @@ string Genebank::archiveRambank()
   return extractedOrgs.str();
 }
 
-cd::ref<Rambank_entry> Genebank::insert
+template <class I>
+cd::ref<Rambank_entry<I>> Genebank<I>::insert
 (const cd::ref<Rambank_entry>& e)
 {
   if (!e) return e;
-  std::pair<Rambank::iterator, bool> res = rambank.insert(e);
+  auto res = rambank.insert(e);
   if (res.second) // entry was new, insert into reverse genebank
     reverseGenebank[e->genome]=e->name;
   return *res.first;
 }
 
-void  Genebank::populateReverseGenebank()
+template <class I>
+void  Genebank<I>::populateReverseGenebank()
 {
-  if (opened())
-    for (string name=firstkey(); !eof(); name=nextkey())
+  if (this->opened())
+    for (string name=this->firstkey(); !this->eof(); name=this->nextkey())
       reverseGenebank[(*this)[name].genome]=name;
 }
 
-string Genebank::rambankElem(TCL_args args)
+template <class I>
+string Genebank<I>::rambankElem(TCL_args args)
 {
   string name=args[-1].get<string>()+"_"+(char*)(args[0]);
   size_t i=(int)args;
-  Rambank::iterator j=rambank.begin();
+  auto j=rambank.begin();
   for (; i && j!=rambank.end(); --i, ++j);
   if (j==rambank.end())
       throw error("rambank index %s out of range",name.c_str());
@@ -115,9 +122,13 @@ string Genebank::rambankElem(TCL_args args)
 }
 
 
-string Genebank::orgList()
+template <class I>
+string Genebank<I>::orgList()
 {
-  string orgList=firstkey();
-  for (; !eof(); orgList+=" "+nextkey());
+  string orgList=this->firstkey();
+  for (; !this->eof(); orgList+=" "+this->nextkey());
   return orgList;
 }
+
+template class Genebank<CPUInst0::Instr_set>;
+template class Genebank<VectorCPU::Instr_set>;

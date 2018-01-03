@@ -94,9 +94,9 @@ OpTable* optable[] {&copy,&cmpl,&addv,&carry};
 size_t numOps=sizeof(optable)/sizeof(OpTable);
 
 // reference to the global soup
-extern Soup& soup;
+extern Soup<VectorCPU>& soup;
 
-void VectorCPU::execute(instr_set instr)
+void VectorCPU::execute(Instr_set instr)
 {
   int32_t src=registers[instr&0xff], dest=registers[(instr>>9)&0xff];
   if (instr&(1<<8))
@@ -128,7 +128,7 @@ void VectorCPU::execute(instr_set instr)
 }
 
 
-void VectorCPU::doSpecialOp(int32_t opCode,instr_set instr, int32_t src,int32_t& dest)
+void VectorCPU::doSpecialOp(int32_t opCode,Instr_set instr, int32_t src,int32_t& dest)
 {
   switch (opCode)
     {
@@ -154,7 +154,7 @@ int parseRegister(const string& reg)
     return stoi(reg.substr(1));
 }
 
-void assemble(vector<VectorCPU::instr_set>& code, istream& text)
+void assemble(vector<VectorCPU::Instr_set>& code, istream& text)
 {
   string buf;
   regex comment("^[:space:]*;");
@@ -190,7 +190,7 @@ void assemble(vector<VectorCPU::instr_set>& code, istream& text)
     }
 }
 
-void disassemble(ostream& text, const vector<VectorCPU::instr_set>& code)
+void disassemble(ostream& text, const vector<VectorCPU::Instr_set>& code)
 {
   VectorInstr c;
   for (auto i: code)

@@ -10,8 +10,8 @@
 class Etierra: public ecolab::TCL_obj_t
 {
 public:
-  Soup soup;
-  Genebank genebank;
+  Soup<CPUInst0> soup;
+  Genebank<CPUInst0::Instr_set> genebank;
   /// key is a space separated, lexicographically ordered list of
   /// organisms involved in the tournament, appended to the genome name
   /// of the organism occupying the cell for which the result is
@@ -28,7 +28,7 @@ public:
   void InjectOrg(const std::string& oname);
 
   /// add an empty cell ie a spacer
-  void addEmptyCell() {soup.cells.push_back(Cell(soup.cells.size()));}
+  void addEmptyCell() {soup.cells.emplace_back(soup.cells.size());}
 
   void exportGenome(ecolab::TCL_args);
   void importGenome(ecolab::TCL_args);

@@ -10,11 +10,13 @@
 using classdesc::ref;
 
 // size tracking vector (for performance)
+template <class Instr_set>
 class Genome: public std::vector<Instr_set>
 {
   size_t m_size;
   CLASSDESC_ACCESS(Genome);
 public:
+  using typename std::vector<Instr_set>::iterator;
   size_t size() const {return m_size;}
   void push_back(Instr_set x) {
     std::vector<Instr_set>::push_back(x); 
@@ -58,6 +60,7 @@ public:
 
 
 /// entry into the Rambank. \c name is set at division
+template <class Instr_set>
 struct Rambank_entry
 {
   std::string name, parent;
@@ -76,6 +79,7 @@ struct Rambank_entry
 };
 
 /// used to construct RamBank indexed by name
+template <class Rambank_entry>
 struct SortName
 {
   bool operator()(const ref<Rambank_entry>& x, 
@@ -99,16 +103,18 @@ struct SortName
 //  template <> struct less<Rambank_entry>: public SortGenome {};
 //}
 
-class Genebank: public ecolab::cachedDBM<std::string,Rambank_entry>
+template <class I>
+class Genebank: public ecolab::cachedDBM<std::string,Rambank_entry<I>>
 {
   std::map<size_t,size_t> lastId;
   CLASSDESC_ACCESS(Genebank);
 public:
+  typedef ::Rambank_entry<I> Rambank_entry;
   //typedef std::set<classdesc::ref<Rambank_entry>, SortName> Rambank;
-  typedef std::set<ref<Rambank_entry>, SortName> Rambank;
+  typedef std::set<ref<Rambank_entry>, SortName<Rambank_entry>> Rambank;
 
   unsigned savMinNum; ///< threshold number for saving to genebank
-  ecolab::cachedDBM<std::vector<Instr_set>, std::string> reverseGenebank;
+  ecolab::cachedDBM<std::vector<I>, std::string> reverseGenebank;
 
 private:
   Rambank rambank;
@@ -117,7 +123,7 @@ public:
   Genebank(): savMinNum(10) {}
 
   void clear() {
-    commit(); 
+    this->commit(); 
     ecolab::cachedDBM<std::string,Rambank_entry>::clear();
     reverseGenebank.commit();
     reverseGenebank.clear();
@@ -153,11 +159,11 @@ public:
 };
 
 // to allow the object browser to drill down into the Rambanker etc.
-inline 
+template <class I> 
 void TCL_obj(ecolab::TCL_obj_t& t, const classdesc::string& d, 
-             const ref<Rambank_entry>& a)
+             const ref<Rambank_entry<I>>& a)
 {
-  if (a) TCL_obj(t,d,const_cast<Rambank_entry&>(*a));
+  if (a) TCL_obj(t,d,const_cast<Rambank_entry<I>&>(*a));
 }
 
 #include "genebank.cd"
