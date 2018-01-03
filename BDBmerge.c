@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   DB *idb, *odb;
   int i, last;
