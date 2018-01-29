@@ -1,4 +1,5 @@
 #include "VectorCPU.h"
+#include "VectorCPU16bit.h"
 #include "Soup.h"
 #include "complement.h"
 #include "error.h"
@@ -496,3 +497,5 @@ template class Cell<CPUInst0>;
 template class Soup<CPUInst0>;
 template class Cell<VectorCPU>;
 template class Soup<VectorCPU>;
+template class Cell<VectorCPU16bit>;
+template class Soup<VectorCPU16bit>;

@@ -1,0 +1,51 @@
+genome: ancestorWithStack
+parent: god
+
+; R0=PC
+; R1= accumulator
+; R2=SP
+  ; R3=read addr
+  ; R4=size, write addr
+  ; R5=end template
+  ; R6=begin
+  
+                copy PC,R6      ; stash begin
+
+; set up stack
+incdst, mask1:  copy [PC],R7     ; 8=>R7
+                mal R7,R2
+
+; find end, and count words
+incdst:         copy PC,R3
+                copy PC,PC       ; nop0
+                copy [R3],R5
+
+incdst:         copy R3,R3
+mask1:          copy [PC],R4    ; init counter R4 to 4
+
+incdst:         copy PC,[R2]    ; count loop
+                copy [R3],R1
+incdst:         copy R3,R3      ; inc read addr
+incdst:         copy R4,R4      ; inc counter
+incPCifNz:      xor  R5,R1
+decdst:         copy [R2],PC    ; return if R1!=0
+
+
+incdst:         copy PC,[R2]    ; copy sub
+; save begin, end and size
+incdst:         copy R6,[R2]
+incdst:         copy R4,[R2]
+                mal R4,R4
+                copy R6,R3
+incdst:         copy PC,[R2]    ; copy loop
+                copy [R3],R1
+incdst:         copy R3,R3      ; inc read addr
+incdst:         copy R1,[R4]                
+incPCifNz:      xor  R5,R1
+decsrc:         copy [R2],PC    ; return if R1!=0
+decsrc:         copy [R2],R4    ; pop size
+decsrc:         copy [R2],R6    ; pop begin
+                div  PC,PC
+decsrc:         copy [R2],PC    ; return if R1!=0
+                copy PC,PC      ; end template (nop0)
+                
