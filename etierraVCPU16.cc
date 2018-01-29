@@ -44,6 +44,7 @@ void Etierra::importGenome(const std::string& filename)
   if (name.length())
     {
       auto& rb=genebank[name];
+      rb.genome.clear();
       VectorCPU16bit::assemble(rb.genome, f);
       rb.name=name;
       rb.parent=parent;

@@ -18,14 +18,14 @@ incdst:         copy PC,R1
                 copy PC,PC      ; nop0
                 copy [R1],R5    ; load end template
 
-incdst:         copy R1,R1
+                copy R1,R1
 mask0:          copy R4,R4    ; init counter R7 to 4
 
-incdst:         copy PC,R8      ; count_loop
+                copy PC,R8      ; count_loop
                 copy [R1],R3
 incdst:         copy R1,R1      ; inc read addr
 incdst:         copy R4,R4      ; inc counter
-incPCifNz:      xor  R5,R3
+incPCifz:       xor  R5,R3
                 copy R8,PC      ; jmpnz count_loop+1
 
 

@@ -13,8 +13,9 @@ typedef char OpTable[16][16];
 struct VectorCPU16bit
 {
   static const int numNormalops=14;
-  enum OpCodes {copy, cmpl, addv, carry, _xor, _and, shlv, mal=numNormalops,div};
-  enum IncDecFlags {none=0, decsrc, incdst, incpcifnz}; 
+  // use uppercase opcodes to avoid C++ keywords
+  enum OpCodes {COPY, CMPL, ADDV, CARRY, XOR, AND, SHLV, MAL=numNormalops,DIV};
+  enum IncDecFlags {none=0, decsrc, incdst, incpcifz}; 
   typedef uint32_t Instr_set;
   static const uint32_t instr_sz=0xFFFF;
   static const unsigned numRegisters=12;

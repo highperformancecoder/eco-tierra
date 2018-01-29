@@ -12,6 +12,7 @@ using std::string;
 using std::istream;
 using std::ostream;
 using std::cerr;
+using std::cout;
 using std::endl;
 using std::regex;
 using std::smatch;
@@ -25,13 +26,13 @@ namespace
     for (int i=0; i<16; ++i)
       for (int j=0; j<16; ++j)
         {
-          optable[0][i][j] = i; //copy
-          optable[1][i][j] = ~i; //cmpl
+          optable[0][i][j] = j; //copy
+          optable[1][i][j] = ~j; //cmpl
           optable[2][i][j] = (i+j)&0xff; //addv
           optable[3][i][j] = i+j > 0xff; //carry
           optable[4][i][j] = i^j; //xor
           optable[5][i][j] = i&j; //and
-          optable[6][i][j] = (i<<1)&0xff;
+          optable[6][i][j] = (j<<1)&0xff; //shlv
         }
     return 1;
   }
@@ -49,6 +50,7 @@ extern Soup<VectorCPU16bit>& soup;
 void VectorCPU16bit::execute(Instr_set instr)
 {
   VectorInstr16bit vi; vi.instr=instr;
+  cout << classdesc::enumKey<OpCodes>(vi.op)<<" "<<vi.src<<","<<vi.dst<<endl;
   int32_t src, dst;
   unsigned char *srcB=reinterpret_cast<unsigned char*>(&src), *dstB=reinterpret_cast<unsigned char*>(&dst);
   if (vi.src<numRegisters)
@@ -74,11 +76,11 @@ void VectorCPU16bit::execute(Instr_set instr)
   else
     switch (vi.op)
       {
-      case int(mal):
+      case int(MAL):
         dst=soup.mal(src,cellID);
         return;
-      case int(div):
-        //TODO
+      case int(DIV):
+        soup.divide(cellID);
         return;
       }
   if (vi.shift) (dst<<8)|(dst>>24); //apply shift bits  
@@ -92,7 +94,7 @@ void VectorCPU16bit::execute(Instr_set instr)
     case none: break;
     case decsrc: registers[vi.src]--; break;
     case incdst: registers[vi.dst]++; break;
-    case incpcifnz: if (dst) registers[0]++; break;
+    case incpcifz: if (!dst) registers[0]++; break;
     }
   
   // increment PC
@@ -149,6 +151,7 @@ void VectorCPU16bit::assemble(vector<Instr_set>& code, istream& text)
           regex_match(buf,match,bareOp))
         {
           string op=match[1];
+          for (auto& i: op) i=toupper(i);
           c.op=classdesc::enumKey<OpCodes>(op);
           int s=parseRegister(match[3]), d=parseRegister(match[5]);
           if (match[2]=="[")
@@ -186,6 +189,15 @@ string VectorCPU16bit::regName(int r)
     return "PC";
 }
 
+namespace
+{
+  string tolower(string x)
+  {
+    for (auto& i:x) i=std::tolower(i);
+    return x;
+  }
+}
+
 void VectorCPU16bit::disassemble(ostream& text, const vector<Instr_set>& code)
 {
   VectorInstr16bit c;
@@ -198,10 +210,10 @@ void VectorCPU16bit::disassemble(ostream& text, const vector<Instr_set>& code)
       text<<": ";
       // wrap around within normal and special op space
       if (c.op<numNormalops)
-        text <<  classdesc::enumKey<OpCodes>
-          (c.op % numNormalops);
+        text <<  tolower(classdesc::enumKey<OpCodes>
+                         (c.op % numNormalops));
       else
-        text <<  classdesc::enumKey<OpCodes>(c.op);
+        text <<  tolower(classdesc::enumKey<OpCodes>(c.op));
 
       text << " " << regName(c.src)<<","<<regName(c.dst)<<endl;
     }
