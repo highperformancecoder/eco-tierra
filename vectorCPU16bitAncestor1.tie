@@ -14,13 +14,12 @@ parent: god
                 copy PC,R6      ; stash begin
 
 ; find end, and count words
-incdst:         copy PC,R1
-                copy PC,PC      ; nop0
-                copy [R1],R5    ; load end template
+                xor R5,R5    ; load end template (copy PC,PC==0)
 
-                copy R1,R1
-mask0:          copy R4,R4    ; init counter R7 to 4
+                copy R6,R1
+incdst:         xor R4,R4       ; init counter R4 to 1
 
+incdst:         copy R1,R1
                 copy PC,R8      ; count_loop
                 copy [R1],R3
 incdst:         copy R1,R1      ; inc read addr
@@ -29,16 +28,16 @@ incPCifz:       xor  R5,R3
                 copy R8,PC      ; jmpnz count_loop+1
 
 
-incdst:         copy PC,R9      ; copy_sub
+                copy PC,R9      ; copy_sub
                 mal R4,R2
                 copy R6,R1
-incdst:         copy PC,R8      ; copy_loop
+                copy PC,R8      ; copy_loop
                 copy [R1],R3
 incdst:         copy R1,R1      ; inc read addr
-incdst:         copy R1,[R2]                
-incPCifNz:      xor  R5,R3
+incdst:         copy R3,[R2]                
+incPCifz:       xor  R5,R3
                 copy R8,PC      ; jmp copy_loop+1
                 div  PC,PC
                 copy R9,PC      ; jmp copy_sub
-                copy PC,PC      ; end template (nop0)
+                copy R0,R0      ; end template (nop0)
                 

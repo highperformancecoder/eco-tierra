@@ -23,12 +23,17 @@ struct VectorCPU16bit
   unsigned cellID;
   bool active;
   unsigned inst_exec;
-  int faults, divs, movDaught;
+  int faults, divs, movDaught, daughter=0;
   void execute(Instr_set);
 
   VectorCPU16bit(unsigned cell=0) {init(cell);}
   void init(unsigned cell) {
+    active=false;
     cellID=cell;
+    memset(&registers,0,sizeof(registers));
+    PC(cell<<Cell_bitsize);
+    faults=divs=inst_exec=0;
+    movDaught=0;
   }
   bool sameState(const VectorCPU16bit&) {/* TODO */}
   Word stackLowWater;

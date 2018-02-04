@@ -2,7 +2,6 @@
 use_namespace etierra
 genebank.Init genebank w
 importGenome vectorCPU16bitAncestor1.tie
-soup.setMaxCells 1000
 
 proc assert {x args} {
     if {![expr $x]}  {
@@ -13,14 +12,17 @@ proc assert {x args} {
 
 # insert the anscestor, and then run the simulator some
 injectOrg ancestor
+soup.setMaxCells 1000
 GUI
-soup.run 1000
-puts [soup.cells.size]
+proc simulate {} {
+    soup.run 1000
+    puts [soup.cells.size]
+}
 
 #check that all cells are in a valid state
         
 #assert [soup.cells.size]>1
-for {set cell 0} {$cell<[soup.cells.size]} {incr cell} {etierra.soup.cells.@elem $cell}
+#for {set cell 0} {$cell<[soup.cells.size]} {incr cell} {etierra.soup.cells.@elem $cell}
 #for {set cell 0} {$cell<[soup.cells.size]} {incr cell} {
 #    set c etierra.soup.cells($cell)
 #    assert "[$c.cellID] == $cell" 

@@ -56,38 +56,52 @@ void VectorCPU16bit::execute(Instr_set instr)
   if (vi.src<numRegisters)
     src=registers[vi.src];
   else
-    src=soup.get(registers[vi.src-numRegisters]); //indirect addressing
-  if (vi.dst<12)
+    src=soup.get(registers[vi.src-=numRegisters]); //indirect addressing
+  
+  bool directDst=vi.dst<numRegisters;
+  if (directDst)
     dst=registers[vi.dst];
   else
-    dst=soup.get(registers[vi.dst-numRegisters]); //indirect addressing
+    dst=soup.get(registers[vi.dst-=numRegisters]); //indirect addressing
 
   if (vi.op<numNormalops)
     {
       int32_t mask=vi.mask0? 0xFFU: 0xFFFFFFFFU;
       OpTable& op=optable[vi.op % numOps];
       dst=mask&
-        (op[dstB[0]][srcB[0]] |
-         (op[dstB[1]][srcB[1]]<<8) |
-         (op[dstB[2]][srcB[2]]<<16) |
-         (op[dstB[3]][srcB[3]]<<24)) |
+        (op[dstB[0]&0xF][srcB[0]&0xF] |
+         (op[dstB[0]>>4][srcB[0]>>4]<<4) |
+         (op[dstB[1]&0xF][srcB[1]&0xF]<<8) |
+         (op[dstB[1]>>4][srcB[1]>>4]<<12) |
+         (op[dstB[2]&0xF][srcB[2]&0xF]<<16) |
+         (op[dstB[2]>>4][srcB[2]>>4]<<20) |
+         (op[dstB[3]&0xF][srcB[3]&0xF]<<24) |
+         (op[dstB[3]>>4][srcB[3]>>4]<<28)) |
         ~mask&dst;
     }        
   else
     switch (vi.op)
       {
       case int(MAL):
-        dst=soup.mal(src,cellID);
-        return;
+        dst=daughter=soup.mal(src,cellID);
+        break;
       case int(DIV):
-        soup.divide(cellID);
-        return;
+        if (soup.divide(daughter))
+          divs++;
+        else
+          faults++;
+        break;
       }
   if (vi.shift) (dst<<8)|(dst>>24); //apply shift bits  
-  if (vi.dst<numRegisters)
+  if (directDst)
     registers[vi.dst]=dst;
   else
-    soup.set(registers[vi.dst-numRegisters],dst);
+    {
+      if (soup.set(registers[vi.dst],dst))
+        movDaught++;
+      else
+        faults++;
+    }
   // apply increment/decrement flags
   switch (IncDecFlags(vi.incDec))
     {
@@ -99,6 +113,7 @@ void VectorCPU16bit::execute(Instr_set instr)
   
   // increment PC
   registers[0]++;
+  inst_exec++;
 }
 
 namespace
